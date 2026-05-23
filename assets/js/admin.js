@@ -1,5 +1,5 @@
 // ========================================
-// ADVANCED ADMIN DASHBOARD (FIXED)
+// ADVANCED ADMIN DASHBOARD (FULL FIXED)
 // ========================================
 
 class AdminDashboard {
@@ -15,29 +15,26 @@ class AdminDashboard {
     }
 
     // ========================================
-    // AUTHENTICATION (FIXED)
+    // AUTHENTICATION
     // ========================================
 
     async checkAuth() {
         try {
-            // Check both localStorage and sessionStorage for token
-            const token = localStorage.getItem('admin_auth_token') || sessionStorage.getItem('admin_auth_token');
+            const token =
+                localStorage.getItem('admin_auth_token') ||
+                sessionStorage.getItem('admin_auth_token');
+
             const adminEmail = localStorage.getItem('admin_email');
 
             if (!token) {
-                // No token found - redirect to login
                 window.location.href = 'login.html';
                 return;
             }
 
-            // Token found - set email in dashboard
-            if (adminEmail) {
-                document.getElementById('admin-email').textContent = adminEmail;
-            } else {
-                document.getElementById('admin-email').textContent = 'Admin User';
-            }
+            document.getElementById('admin-email').textContent =
+                adminEmail || 'Admin User';
 
-            console.log('✅ Authentication successful - Dashboard loaded');
+            console.log('✅ Authentication successful');
         } catch (error) {
             console.error('Auth error:', error);
             window.location.href = 'login.html';
@@ -49,14 +46,13 @@ class AdminDashboard {
     // ========================================
 
     setupUI() {
-        // Initialize modals
         this.modals = {
             project: document.getElementById('project-modal'),
             skill: document.getElementById('skill-modal'),
             social: document.getElementById('social-modal')
         };
 
-        // Close modal on overlay click
+        // Close modal on outside click
         Object.values(this.modals).forEach(modal => {
             modal?.addEventListener('click', (e) => {
                 if (e.target === modal) {
@@ -71,7 +67,8 @@ class AdminDashboard {
     // ========================================
 
     setupEventListeners() {
-        // Tab Navigation
+
+        // Sidebar Tabs
         document.querySelectorAll('.sidebar-nav a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -80,19 +77,30 @@ class AdminDashboard {
         });
 
         // Forms
-        document.getElementById('profile-form')?.addEventListener('submit', (e) => this.handleProfileSubmit(e));
-        document.getElementById('project-form')?.addEventListener('submit', (e) => this.handleProjectSubmit(e));
-        document.getElementById('skill-form')?.addEventListener('submit', (e) => this.handleSkillSubmit(e));
-        document.getElementById('social-form')?.addEventListener('submit', (e) => this.handleSocialSubmit(e));
+        document.getElementById('profile-form')
+            ?.addEventListener('submit', (e) => this.handleProfileSubmit(e));
+
+        document.getElementById('project-form')
+            ?.addEventListener('submit', (e) => this.handleProjectSubmit(e));
+
+        document.getElementById('skill-form')
+            ?.addEventListener('submit', (e) => this.handleSkillSubmit(e));
+
+        document.getElementById('social-form')
+            ?.addEventListener('submit', (e) => this.handleSocialSubmit(e));
 
         // Logout
-        document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
+        document.getElementById('logout-btn')
+            ?.addEventListener('click', () => this.logout());
 
-        // Close buttons
+        // Close Buttons
         document.querySelectorAll('.close').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const modal = e.target.closest('.modal');
-                if (modal) this.closeModal(modal.id);
+
+                if (modal) {
+                    this.closeModal(modal.id);
+                }
             });
         });
     }
@@ -102,19 +110,23 @@ class AdminDashboard {
     // ========================================
 
     switchTab(element) {
-        // Update active nav item
-        document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+
+        document.querySelectorAll('.sidebar-nav a')
+            .forEach(a => a.classList.remove('active'));
+
         element.classList.add('active');
 
-        // Update active tab
         const tabId = element.getAttribute('data-tab');
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+        document.querySelectorAll('.tab-content')
+            .forEach(tab => tab.classList.remove('active'));
+
         const activeTab = document.getElementById(`${tabId}-tab`);
+
         if (activeTab) {
             activeTab.classList.add('active');
         }
 
-        // Update title
         const titles = {
             profile: 'Profile Management',
             projects: 'Manage Projects',
@@ -122,295 +134,370 @@ class AdminDashboard {
             social: 'Manage Social Links',
             messages: 'Inbound Messages'
         };
-        document.getElementById('tab-title').textContent = titles[tabId] || 'Management';
+
+        document.getElementById('tab-title').textContent =
+            titles[tabId] || 'Management';
     }
 
     // ========================================
-    // DATA LOADING
+    // LOAD DATA
     // ========================================
 
     async loadInitialData() {
-        try {
-            await this.loadProfile();
-            await this.loadProjects();
-            await this.loadSkills();
-            await this.loadSocials();
-            await this.loadMessages();
-        } catch (error) {
-            console.error('Error loading data:', error);
-        }
+        await this.loadProfile();
+        await this.loadProjects();
+        await this.loadSkills();
+        await this.loadSocials();
+        await this.loadMessages();
     }
 
     async loadProfile() {
-        try {
-            // Simulate loading profile from localStorage or API
-            const savedProfile = localStorage.getItem('admin_profile');
-            if (savedProfile) {
-                const profile = JSON.parse(savedProfile);
-                document.getElementById('admin-full-name').value = profile.fullName || '';
-                document.getElementById('admin-role').value = profile.role || '';
-                document.getElementById('admin-email-field').value = profile.email || '';
-                document.getElementById('admin-phone').value = profile.phone || '';
-                document.getElementById('admin-location').value = profile.location || '';
-                document.getElementById('admin-image-url').value = profile.imageUrl || '';
-                document.getElementById('admin-bio').value = profile.bio || '';
-                document.getElementById('admin-about').value = profile.about || '';
-            }
-        } catch (error) {
-            console.error('Error loading profile:', error);
-        }
+
+        const savedProfile = localStorage.getItem('admin_profile');
+
+        if (!savedProfile) return;
+
+        const profile = JSON.parse(savedProfile);
+
+        document.getElementById('admin-full-name').value =
+            profile.fullName || '';
+
+        document.getElementById('admin-role').value =
+            profile.role || '';
+
+        document.getElementById('admin-email-field').value =
+            profile.email || '';
+
+        document.getElementById('admin-phone').value =
+            profile.phone || '';
+
+        document.getElementById('admin-location').value =
+            profile.location || '';
+
+        document.getElementById('admin-image-url').value =
+            profile.imageUrl || '';
+
+        document.getElementById('admin-bio').value =
+            profile.bio || '';
+
+        document.getElementById('admin-about').value =
+            profile.about || '';
     }
 
     async loadProjects() {
-        try {
-            const projectsList = document.getElementById('projects-list');
-            const savedProjects = localStorage.getItem('admin_projects');
-            
-            if (savedProjects) {
-                const projects = JSON.parse(savedProjects);
-                if (projects.length > 0) {
-                    projectsList.innerHTML = projects.map((project, index) => `
-                        <tr>
-                            <td><img src="${project.image}" alt="${project.title}" style="width: 50px; height: 50px; border-radius: 4px;"></td>
-                            <td>${project.title}</td>
-                            <td>${project.category}</td>
-                            <td>
-                                <button class="btn small-btn primary-btn" onclick="dashboard.editProject(${index})"><i class="fas fa-edit"></i></button>
-                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteProject(${index})"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    projectsList.innerHTML = '<tr><td colspan="4" class="text-center">No projects yet</td></tr>';
-                }
-            } else {
-                projectsList.innerHTML = '<tr><td colspan="4" class="text-center">No projects yet</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading projects:', error);
+
+        const projectsList = document.getElementById('projects-list');
+
+        const projects =
+            JSON.parse(localStorage.getItem('admin_projects') || '[]');
+
+        if (projects.length === 0) {
+            projectsList.innerHTML =
+                '<tr><td colspan="4" class="text-center">No projects yet</td></tr>';
+            return;
         }
+
+        projectsList.innerHTML = projects.map((project, index) => `
+            <tr>
+                <td>
+                    <img src="${project.image}"
+                        alt="${project.title}"
+                        style="width:50px;height:50px;border-radius:6px;object-fit:cover;">
+                </td>
+
+                <td>${project.title}</td>
+
+                <td>${project.category}</td>
+
+                <td>
+                    <button class="btn small-btn danger-btn"
+                        onclick="dashboard.deleteProject(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     async loadSkills() {
-        try {
-            const skillsList = document.getElementById('skills-list');
-            const savedSkills = localStorage.getItem('admin_skills');
-            
-            if (savedSkills) {
-                const skills = JSON.parse(savedSkills);
-                if (skills.length > 0) {
-                    skillsList.innerHTML = skills.map((skill, index) => `
-                        <tr>
-                            <td><i class="${skill.icon}"></i></td>
-                            <td>${skill.name}</td>
-                            <td>
-                                <button class="btn small-btn primary-btn" onclick="dashboard.editSkill(${index})"><i class="fas fa-edit"></i></button>
-                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteSkill(${index})"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    skillsList.innerHTML = '<tr><td colspan="3" class="text-center">No skills yet</td></tr>';
-                }
-            } else {
-                skillsList.innerHTML = '<tr><td colspan="3" class="text-center">No skills yet</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading skills:', error);
+
+        const skillsList = document.getElementById('skills-list');
+
+        const skills =
+            JSON.parse(localStorage.getItem('admin_skills') || '[]');
+
+        if (skills.length === 0) {
+            skillsList.innerHTML =
+                '<tr><td colspan="3" class="text-center">No skills yet</td></tr>';
+            return;
         }
+
+        skillsList.innerHTML = skills.map((skill, index) => `
+            <tr>
+                <td><i class="${skill.icon}"></i></td>
+
+                <td>${skill.name}</td>
+
+                <td>
+                    <button class="btn small-btn danger-btn"
+                        onclick="dashboard.deleteSkill(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
     }
 
     async loadSocials() {
-        try {
-            const socialsList = document.getElementById('socials-list');
-            const savedSocials = localStorage.getItem('admin_socials');
-            
-            if (savedSocials) {
-                const socials = JSON.parse(savedSocials);
-                if (socials.length > 0) {
-                    socialsList.innerHTML = socials.map((social, index) => `
-                        <tr>
-                            <td>${social.name}</td>
-                            <td><i class="${social.icon}"></i></td>
-                            <td><a href="${social.url}" target="_blank">${social.url}</a></td>
-                            <td>
-                                <button class="btn small-btn primary-btn" onclick="dashboard.editSocial(${index})"><i class="fas fa-edit"></i></button>
-                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteSocial(${index})"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    socialsList.innerHTML = '<tr><td colspan="4" class="text-center">No social links yet</td></tr>';
-                }
-            } else {
-                socialsList.innerHTML = '<tr><td colspan="4" class="text-center">No social links yet</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading socials:', error);
+
+        const socialsList = document.getElementById('socials-list');
+
+        const socials =
+            JSON.parse(localStorage.getItem('admin_socials') || '[]');
+
+        if (socials.length === 0) {
+            socialsList.innerHTML =
+                '<tr><td colspan="4" class="text-center">No social links yet</td></tr>';
+            return;
         }
+
+        socialsList.innerHTML = socials.map((social, index) => `
+            <tr>
+
+                <td>${social.name}</td>
+
+                <td>
+                    <i class="${social.icon}"></i>
+                </td>
+
+                <td>
+                    <a href="${social.url}" target="_blank">
+                        ${social.url}
+                    </a>
+                </td>
+
+                <td>
+                    <button class="btn small-btn danger-btn"
+                        onclick="dashboard.deleteSocial(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+
+            </tr>
+        `).join('');
     }
 
     async loadMessages() {
-        try {
-            const messagesList = document.getElementById('messages-list');
-            const savedMessages = localStorage.getItem('admin_messages');
-            
-            if (savedMessages) {
-                const messages = JSON.parse(savedMessages);
-                if (messages.length > 0) {
-                    messagesList.innerHTML = messages.map((msg) => `
-                        <tr>
-                            <td>${msg.date}</td>
-                            <td>${msg.from}</td>
-                            <td>${msg.subject}</td>
-                            <td>${msg.message.substring(0, 50)}...</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    messagesList.innerHTML = '<tr><td colspan="4" class="text-center">No messages yet</td></tr>';
-                }
-            } else {
-                messagesList.innerHTML = '<tr><td colspan="4" class="text-center">No messages yet</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading messages:', error);
+
+        const messagesList = document.getElementById('messages-list');
+
+        const messages =
+            JSON.parse(localStorage.getItem('admin_messages') || '[]');
+
+        if (messages.length === 0) {
+            messagesList.innerHTML =
+                '<tr><td colspan="4" class="text-center">No messages yet</td></tr>';
+            return;
         }
+
+        messagesList.innerHTML = messages.map(msg => `
+            <tr>
+                <td>${msg.date}</td>
+                <td>${msg.from}</td>
+                <td>${msg.subject}</td>
+                <td>${msg.message}</td>
+            </tr>
+        `).join('');
     }
 
     // ========================================
-    // FORM SUBMISSIONS
+    // FORM SUBMIT
     // ========================================
 
     async handleProfileSubmit(e) {
-        e.preventDefault();
-        try {
-            const profile = {
-                fullName: document.getElementById('admin-full-name').value,
-                role: document.getElementById('admin-role').value,
-                email: document.getElementById('admin-email-field').value,
-                phone: document.getElementById('admin-phone').value,
-                location: document.getElementById('admin-location').value,
-                imageUrl: document.getElementById('admin-image-url').value,
-                bio: document.getElementById('admin-bio').value,
-                about: document.getElementById('admin-about').value
-            };
 
-            localStorage.setItem('admin_profile', JSON.stringify(profile));
-            this.showNotification('✅ Profile updated successfully!', 'success');
-        } catch (error) {
-            console.error('Error saving profile:', error);
-            this.showNotification('❌ Error updating profile', 'error');
-        }
+        e.preventDefault();
+
+        const profile = {
+            fullName: document.getElementById('admin-full-name').value,
+            role: document.getElementById('admin-role').value,
+            email: document.getElementById('admin-email-field').value,
+            phone: document.getElementById('admin-phone').value,
+            location: document.getElementById('admin-location').value,
+            imageUrl: document.getElementById('admin-image-url').value,
+            bio: document.getElementById('admin-bio').value,
+            about: document.getElementById('admin-about').value
+        };
+
+        localStorage.setItem('admin_profile', JSON.stringify(profile));
+
+        this.showNotification('✅ Profile updated!', 'success');
     }
 
     async handleProjectSubmit(e) {
+
         e.preventDefault();
-        try {
-            const newProject = {
-                title: document.getElementById('p-title').value,
-                description: document.getElementById('p-desc').value,
-                category: document.getElementById('p-category').value,
-                image: document.getElementById('p-image').value,
-                live: document.getElementById('p-live').value,
-                github: document.getElementById('p-github').value
-            };
 
-            let projects = JSON.parse(localStorage.getItem('admin_projects') || '[]');
-            projects.push(newProject);
-            localStorage.setItem('admin_projects', JSON.stringify(projects));
+        const project = {
+            title: document.getElementById('p-title').value,
+            description: document.getElementById('p-desc').value,
+            category: document.getElementById('p-category').value,
+            image: document.getElementById('p-image').value,
+            live: document.getElementById('p-live').value,
+            github: document.getElementById('p-github').value
+        };
 
-            this.closeModal('project-modal');
-            document.getElementById('project-form').reset();
-            await this.loadProjects();
-            this.showNotification('✅ Project added successfully!', 'success');
-        } catch (error) {
-            console.error('Error saving project:', error);
-            this.showNotification('❌ Error adding project', 'error');
-        }
+        const projects =
+            JSON.parse(localStorage.getItem('admin_projects') || '[]');
+
+        projects.push(project);
+
+        localStorage.setItem(
+            'admin_projects',
+            JSON.stringify(projects)
+        );
+
+        document.getElementById('project-form').reset();
+
+        this.closeModal('project-modal');
+
+        await this.loadProjects();
+
+        this.showNotification('✅ Project added!', 'success');
     }
 
     async handleSkillSubmit(e) {
+
         e.preventDefault();
-        try {
-            const newSkill = {
-                name: document.getElementById('s-name').value,
-                icon: document.getElementById('s-icon').value
-            };
 
-            let skills = JSON.parse(localStorage.getItem('admin_skills') || '[]');
-            skills.push(newSkill);
-            localStorage.setItem('admin_skills', JSON.stringify(skills));
+        const skill = {
+            name: document.getElementById('s-name').value,
+            icon: document.getElementById('s-icon').value
+        };
 
-            this.closeModal('skill-modal');
-            document.getElementById('skill-form').reset();
-            await this.loadSkills();
-            this.showNotification('✅ Skill added successfully!', 'success');
-        } catch (error) {
-            console.error('Error saving skill:', error);
-            this.showNotification('❌ Error adding skill', 'error');
-        }
+        const skills =
+            JSON.parse(localStorage.getItem('admin_skills') || '[]');
+
+        skills.push(skill);
+
+        localStorage.setItem(
+            'admin_skills',
+            JSON.stringify(skills)
+        );
+
+        document.getElementById('skill-form').reset();
+
+        this.closeModal('skill-modal');
+
+        await this.loadSkills();
+
+        this.showNotification('✅ Skill added!', 'success');
     }
 
     async handleSocialSubmit(e) {
+
         e.preventDefault();
-        try {
-            const newSocial = {
-                name: document.getElementById('soc-name').value,
-                icon: document.getElementById('soc-icon').value,
-                url: document.getElementById('soc-url').value
-            };
 
-            let socials = JSON.parse(localStorage.getItem('admin_socials') || '[]');
-            socials.push(newSocial);
-            localStorage.setItem('admin_socials', JSON.stringify(socials));
+        const social = {
+            name: document.getElementById('soc-name').value,
+            icon: document.getElementById('soc-icon').value,
+            url: document.getElementById('soc-url').value
+        };
 
-            this.closeModal('social-modal');
-            document.getElementById('social-form').reset();
-            await this.loadSocials();
-            this.showNotification('✅ Social link added successfully!', 'success');
-        } catch (error) {
-            console.error('Error saving social link:', error);
-            this.showNotification('❌ Error adding social link', 'error');
-        }
+        const socials =
+            JSON.parse(localStorage.getItem('admin_socials') || '[]');
+
+        socials.push(social);
+
+        localStorage.setItem(
+            'admin_socials',
+            JSON.stringify(socials)
+        );
+
+        document.getElementById('social-form').reset();
+
+        this.closeModal('social-modal');
+
+        await this.loadSocials();
+
+        this.showNotification('✅ Social link added!', 'success');
     }
 
+    // ========================================
+    // DELETE
+    // ========================================
+
     deleteProject(index) {
-        if (confirm('Are you sure?')) {
-            let projects = JSON.parse(localStorage.getItem('admin_projects') || '[]');
-            projects.splice(index, 1);
-            localStorage.setItem('admin_projects', JSON.stringify(projects));
-            this.loadProjects();
-            this.showNotification('✅ Project deleted!', 'success');
-        }
+
+        let projects =
+            JSON.parse(localStorage.getItem('admin_projects') || '[]');
+
+        projects.splice(index, 1);
+
+        localStorage.setItem(
+            'admin_projects',
+            JSON.stringify(projects)
+        );
+
+        this.loadProjects();
+
+        this.showNotification('✅ Project deleted!', 'success');
     }
 
     deleteSkill(index) {
-        if (confirm('Are you sure?')) {
-            let skills = JSON.parse(localStorage.getItem('admin_skills') || '[]');
-            skills.splice(index, 1);
-            localStorage.setItem('admin_skills', JSON.stringify(skills));
-            this.loadSkills();
-            this.showNotification('✅ Skill deleted!', 'success');
-        }
+
+        let skills =
+            JSON.parse(localStorage.getItem('admin_skills') || '[]');
+
+        skills.splice(index, 1);
+
+        localStorage.setItem(
+            'admin_skills',
+            JSON.stringify(skills)
+        );
+
+        this.loadSkills();
+
+        this.showNotification('✅ Skill deleted!', 'success');
     }
 
     deleteSocial(index) {
-        if (confirm('Are you sure?')) {
-            let socials = JSON.parse(localStorage.getItem('admin_socials') || '[]');
-            socials.splice(index, 1);
-            localStorage.setItem('admin_socials', JSON.stringify(socials));
-            this.loadSocials();
-            this.showNotification('✅ Social link deleted!', 'success');
-        }
+
+        let socials =
+            JSON.parse(localStorage.getItem('admin_socials') || '[]');
+
+        socials.splice(index, 1);
+
+        localStorage.setItem(
+            'admin_socials',
+            JSON.stringify(socials)
+        );
+
+        this.loadSocials();
+
+        this.showNotification('✅ Social deleted!', 'success');
     }
 
     // ========================================
-    // MODAL MANAGEMENT
+    // MODAL MANAGEMENT (FIXED)
     // ========================================
 
-    closeModal(modalId) {
+    openModal(modalId) {
+
         const modal = document.getElementById(modalId);
-        if (modal) modal.style.display = 'none';
+
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    closeModal(modalId) {
+
+        const modal = document.getElementById(modalId);
+
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 
     // ========================================
@@ -418,36 +505,38 @@ class AdminDashboard {
     // ========================================
 
     logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            localStorage.removeItem('admin_auth_token');
-            localStorage.removeItem('admin_email');
-            localStorage.removeItem('remember_me');
-            sessionStorage.removeItem('admin_auth_token');
-            window.location.href = 'login.html';
-        }
+
+        localStorage.removeItem('admin_auth_token');
+        localStorage.removeItem('admin_email');
+
+        sessionStorage.removeItem('admin_auth_token');
+
+        window.location.href = 'login.html';
     }
 
     // ========================================
-    // NOTIFICATIONS
+    // NOTIFICATION
     // ========================================
 
-    showNotification(message, type) {
-        // Create a simple notification
+    showNotification(message, type = 'success') {
+
         const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
+
         notification.textContent = message;
+
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 20px;
             background: ${type === 'success' ? '#10b981' : '#ef4444'};
             color: white;
+            padding: 14px 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             z-index: 9999;
-            animation: slideIn 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         `;
+
         document.body.appendChild(notification);
 
         setTimeout(() => {
@@ -456,9 +545,26 @@ class AdminDashboard {
     }
 }
 
-// Initialize dashboard when DOM is ready
+// ========================================
+// INITIALIZE
+// ========================================
+
 let dashboard;
+
 document.addEventListener('DOMContentLoaded', () => {
+
     dashboard = new AdminDashboard();
-    console.log('✅ Admin Dashboard initialized');
+
+    console.log('✅ Dashboard initialized');
 });
+
+// ========================================
+// GLOBAL MODAL FUNCTION FIX
+// ========================================
+
+window.openModal = function(modalId) {
+
+    if (dashboard) {
+        dashboard.openModal(modalId);
+    }
+};
