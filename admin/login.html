@@ -246,6 +246,21 @@
             transform: translateX(-3px);
         }
 
+        .demo-credentials {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f0f4ff;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #475569;
+            text-align: center;
+        }
+
+        .demo-credentials strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
         @media (max-width: 640px) {
             .login-card {
                 padding: 1.5rem 1.2rem;
@@ -332,7 +347,7 @@
                         <input type="checkbox" id="remember">
                         <label for="remember">Remember me</label>
                     </div>
-                    <a href="javascript:void(0)" class="forgot-password" onclick="alert('Contact admin'); return false;">
+                    <a href="javascript:void(0)" class="forgot-password" onclick="alert('Please contact the admin for password reset'); return false;">
                         Forgot password?
                     </a>
                 </div>
@@ -341,12 +356,12 @@
                     Sign In
                 </button>
             </form>
+
+            <div class="demo-credentials">
+                Demo: <strong>admin@example.com</strong> / <strong>admin123</strong>
+            </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/supabase-config.js"></script>
-
-
 
     <script>
         class LoginPage {
@@ -372,6 +387,8 @@
             checkAuth() {
                 const token = localStorage.getItem('admin_auth_token') || sessionStorage.getItem('admin_auth_token');
                 if (token) {
+                    // Already logged in - redirect to dashboard
+                    console.log('✅ User already logged in - redirecting to dashboard');
                     window.location.href = 'dashboard.html';
                 }
             }
@@ -382,20 +399,21 @@
                 const email = this.emailInput.value.trim();
                 const password = this.passwordInput.value;
 
-                // Simple demo validation
+                // Demo credentials validation
                 if (email === 'admin@example.com' && password === 'admin123') {
                     this.setLoadingState(true);
                     
-                    // Create token
-                    const token = btoa(email + ':' + password);
+                    // Create token (base64 encoded)
+                    const token = btoa(email + ':' + password + ':' + new Date().getTime());
                     
-                    // Save token
+                    // Save authentication data
                     if (this.rememberCheckbox.checked) {
                         localStorage.setItem('admin_auth_token', token);
                         localStorage.setItem('admin_email', email);
                         localStorage.setItem('remember_me', 'true');
                     } else {
                         sessionStorage.setItem('admin_auth_token', token);
+                        localStorage.setItem('admin_email', email);
                         localStorage.removeItem('remember_me');
                     }
 
@@ -404,8 +422,9 @@
                     // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = 'dashboard.html';
-                    }, 500);
+                    }, 800);
                 } else {
+                    this.setLoadingState(false);
                     this.showMessage('❌ Invalid email or password', 'error');
                     this.passwordInput.value = '';
                     this.passwordInput.focus();
@@ -415,14 +434,23 @@
             showMessage(message, type) {
                 this.messageDiv.textContent = message;
                 this.messageDiv.className = `message ${type} show`;
+                
+                // Auto-hide error messages
+                if (type === 'error') {
+                    setTimeout(() => {
+                        this.messageDiv.classList.remove('show');
+                    }, 4000);
+                }
             }
 
             setLoadingState(isLoading) {
                 this.submitBtn.disabled = isLoading;
                 if (isLoading) {
                     this.submitBtn.classList.add('loading');
+                    this.submitBtn.textContent = '';
                 } else {
                     this.submitBtn.classList.remove('loading');
+                    this.submitBtn.textContent = 'Sign In';
                 }
                 this.emailInput.disabled = isLoading;
                 this.passwordInput.disabled = isLoading;
