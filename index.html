@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio | Creative Professional</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="light-mode">
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="#" class="logo">PORT<span>FOLIO</span></a>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="nav-btns">
+                <button id="theme-toggle" class="theme-btn">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h5 class="fade-in">Welcome to my world</h5>
+                <h1 class="fade-in">Hi, I'm <span id="hero-name">Loading...</span></h1>
+                <h2 class="fade-in"><span id="hero-role">Creative Developer</span></h2>
+                <p class="fade-in" id="hero-bio">Building digital experiences that matter. I specialize in creating
+                    high-quality web applications and interactive designs.</p>
+                <div class="hero-btns fade-in">
+                    <a href="#projects" class="btn primary-btn">View My Work</a>
+                    <a href="#contact" class="btn secondary-btn">Contact Me</a>
+                </div>
+                <div class="social-links fade-in" id="hero-socials">
+                    <!-- Social links will be injected here -->
+                </div>
+            </div>
+            <div class="hero-image fade-in">
+                <div class="image-wrapper">
+                    <img id="profile-img" src="https://via.placeholder.com/500" alt="Profile Image">
+                    <div class="blob"></div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="mouse"></div>
+            <span>Scroll Down</span>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>About Me</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="about-grid">
+                <div class="about-info">
+                    <p id="about-text">Loading bio...</p>
+                    <div class="stats-grid" id="stats-container">
+                        <!-- Stats will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>My Skills</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="skills-grid" id="skills-container">
+                <!-- Skills will be injected here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Featured Projects</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="filter-btns">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <!-- Categories will be injected here -->
+            </div>
+            <div class="projects-grid" id="projects-container">
+                <!-- Projects will be injected here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section bg-light">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get In Touch</h2>
+                <div class="underline"></div>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <p>Feel free to reach out for collaborations or just a friendly hello!</p>
+                    <div class="contact-items">
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p id="contact-email">loading...</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <h4>Phone</h4>
+                                <p id="contact-phone">loading...</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-location-dot"></i>
+                            <div>
+                                <h4>Location</h4>
+                                <p id="contact-location">loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form-wrapper">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <input type="text" id="name" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" id="email" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="subject" placeholder="Subject" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn primary-btn w-100">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">PORT<span>FOLIO</span></div>
+                <p id="footer-tagline">Building the future, one pixel at a time.</p>
+                <div class="social-links" id="footer-socials">
+                    <!-- Social links will be injected here -->
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Portfolio. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Config & Scripts -->
+    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+
+</html>
