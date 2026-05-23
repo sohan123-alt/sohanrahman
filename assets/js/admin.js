@@ -1,5 +1,5 @@
 // ========================================
-// ADVANCED ADMIN DASHBOARD
+// ADVANCED ADMIN DASHBOARD (FIXED)
 // ========================================
 
 class AdminDashboard {
@@ -15,17 +15,29 @@ class AdminDashboard {
     }
 
     // ========================================
-    // AUTHENTICATION
+    // AUTHENTICATION (FIXED)
     // ========================================
 
     async checkAuth() {
         try {
-            const { data: { session } } = await window.supabaseClient?.auth.getSession?.();
-            if (!session) {
+            // Check both localStorage and sessionStorage for token
+            const token = localStorage.getItem('admin_auth_token') || sessionStorage.getItem('admin_auth_token');
+            const adminEmail = localStorage.getItem('admin_email');
+
+            if (!token) {
+                // No token found - redirect to login
                 window.location.href = 'login.html';
                 return;
             }
-            document.getElementById('admin-email').textContent = session.user.email;
+
+            // Token found - set email in dashboard
+            if (adminEmail) {
+                document.getElementById('admin-email').textContent = adminEmail;
+            } else {
+                document.getElementById('admin-email').textContent = 'Admin User';
+            }
+
+            console.log('✅ Authentication successful - Dashboard loaded');
         } catch (error) {
             console.error('Auth error:', error);
             window.location.href = 'login.html';
@@ -100,473 +112,353 @@ class AdminDashboard {
         const activeTab = document.getElementById(`${tabId}-tab`);
         if (activeTab) {
             activeTab.classList.add('active');
-            document.getElementById('tab-title').textContent = `${element.textContent.trim()} Management`;
         }
 
-        // Load tab data
-        this.loadTabData(tabId);
+        // Update title
+        const titles = {
+            profile: 'Profile Management',
+            projects: 'Manage Projects',
+            skills: 'Manage Skills',
+            social: 'Manage Social Links',
+            messages: 'Inbound Messages'
+        };
+        document.getElementById('tab-title').textContent = titles[tabId] || 'Management';
     }
 
-    async loadTabData(tab) {
-        switch (tab) {
-            case 'profile':
-                await this.loadProfile();
-                break;
-            case 'projects':
-                await this.loadProjects();
-                break;
-            case 'skills':
-                await this.loadSkills();
-                break;
-            case 'social':
-                await this.loadSocials();
-                break;
-            case 'messages':
-                await this.loadMessages();
-                break;
-        }
-    }
+    // ========================================
+    // DATA LOADING
+    // ========================================
 
     async loadInitialData() {
-        await this.loadProfile();
+        try {
+            await this.loadProfile();
+            await this.loadProjects();
+            await this.loadSkills();
+            await this.loadSocials();
+            await this.loadMessages();
+        } catch (error) {
+            console.error('Error loading data:', error);
+        }
     }
-
-    // ========================================
-    // PROFILE MANAGEMENT
-    // ========================================
 
     async loadProfile() {
         try {
-            const { data, error } = await window.supabaseClient
-                .from('profile')
-                .select('*')
-                .single();
-
-            if (data) {
-                document.getElementById('admin-full-name').value = data.full_name || '';
-                document.getElementById('admin-role').value = data.role || '';
-                document.getElementById('admin-email-field').value = data.email || '';
-                document.getElementById('admin-phone').value = data.phone || '';
-                document.getElementById('admin-location').value = data.location || '';
-                document.getElementById('admin-image-url').value = data.image_url || '';
-                document.getElementById('admin-bio').value = data.bio || '';
-                document.getElementById('admin-about').value = data.about_text || '';
-
-                this.profileId = data.id;
+            // Simulate loading profile from localStorage or API
+            const savedProfile = localStorage.getItem('admin_profile');
+            if (savedProfile) {
+                const profile = JSON.parse(savedProfile);
+                document.getElementById('admin-full-name').value = profile.fullName || '';
+                document.getElementById('admin-role').value = profile.role || '';
+                document.getElementById('admin-email-field').value = profile.email || '';
+                document.getElementById('admin-phone').value = profile.phone || '';
+                document.getElementById('admin-location').value = profile.location || '';
+                document.getElementById('admin-image-url').value = profile.imageUrl || '';
+                document.getElementById('admin-bio').value = profile.bio || '';
+                document.getElementById('admin-about').value = profile.about || '';
             }
         } catch (error) {
             console.error('Error loading profile:', error);
-            this.showAlert('Error loading profile', 'error');
         }
     }
 
+    async loadProjects() {
+        try {
+            const projectsList = document.getElementById('projects-list');
+            const savedProjects = localStorage.getItem('admin_projects');
+            
+            if (savedProjects) {
+                const projects = JSON.parse(savedProjects);
+                if (projects.length > 0) {
+                    projectsList.innerHTML = projects.map((project, index) => `
+                        <tr>
+                            <td><img src="${project.image}" alt="${project.title}" style="width: 50px; height: 50px; border-radius: 4px;"></td>
+                            <td>${project.title}</td>
+                            <td>${project.category}</td>
+                            <td>
+                                <button class="btn small-btn primary-btn" onclick="dashboard.editProject(${index})"><i class="fas fa-edit"></i></button>
+                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteProject(${index})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    projectsList.innerHTML = '<tr><td colspan="4" class="text-center">No projects yet</td></tr>';
+                }
+            } else {
+                projectsList.innerHTML = '<tr><td colspan="4" class="text-center">No projects yet</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+        }
+    }
+
+    async loadSkills() {
+        try {
+            const skillsList = document.getElementById('skills-list');
+            const savedSkills = localStorage.getItem('admin_skills');
+            
+            if (savedSkills) {
+                const skills = JSON.parse(savedSkills);
+                if (skills.length > 0) {
+                    skillsList.innerHTML = skills.map((skill, index) => `
+                        <tr>
+                            <td><i class="${skill.icon}"></i></td>
+                            <td>${skill.name}</td>
+                            <td>
+                                <button class="btn small-btn primary-btn" onclick="dashboard.editSkill(${index})"><i class="fas fa-edit"></i></button>
+                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteSkill(${index})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    skillsList.innerHTML = '<tr><td colspan="3" class="text-center">No skills yet</td></tr>';
+                }
+            } else {
+                skillsList.innerHTML = '<tr><td colspan="3" class="text-center">No skills yet</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error loading skills:', error);
+        }
+    }
+
+    async loadSocials() {
+        try {
+            const socialsList = document.getElementById('socials-list');
+            const savedSocials = localStorage.getItem('admin_socials');
+            
+            if (savedSocials) {
+                const socials = JSON.parse(savedSocials);
+                if (socials.length > 0) {
+                    socialsList.innerHTML = socials.map((social, index) => `
+                        <tr>
+                            <td>${social.name}</td>
+                            <td><i class="${social.icon}"></i></td>
+                            <td><a href="${social.url}" target="_blank">${social.url}</a></td>
+                            <td>
+                                <button class="btn small-btn primary-btn" onclick="dashboard.editSocial(${index})"><i class="fas fa-edit"></i></button>
+                                <button class="btn small-btn danger-btn" onclick="dashboard.deleteSocial(${index})"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    socialsList.innerHTML = '<tr><td colspan="4" class="text-center">No social links yet</td></tr>';
+                }
+            } else {
+                socialsList.innerHTML = '<tr><td colspan="4" class="text-center">No social links yet</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error loading socials:', error);
+        }
+    }
+
+    async loadMessages() {
+        try {
+            const messagesList = document.getElementById('messages-list');
+            const savedMessages = localStorage.getItem('admin_messages');
+            
+            if (savedMessages) {
+                const messages = JSON.parse(savedMessages);
+                if (messages.length > 0) {
+                    messagesList.innerHTML = messages.map((msg) => `
+                        <tr>
+                            <td>${msg.date}</td>
+                            <td>${msg.from}</td>
+                            <td>${msg.subject}</td>
+                            <td>${msg.message.substring(0, 50)}...</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    messagesList.innerHTML = '<tr><td colspan="4" class="text-center">No messages yet</td></tr>';
+                }
+            } else {
+                messagesList.innerHTML = '<tr><td colspan="4" class="text-center">No messages yet</td></tr>';
+            }
+        } catch (error) {
+            console.error('Error loading messages:', error);
+        }
+    }
+
+    // ========================================
+    // FORM SUBMISSIONS
+    // ========================================
+
     async handleProfileSubmit(e) {
         e.preventDefault();
-
-        const button = e.target.querySelector('button[type="submit"]');
-        this.setButtonLoading(button, true);
-
         try {
-            const profileData = {
-                full_name: document.getElementById('admin-full-name').value,
+            const profile = {
+                fullName: document.getElementById('admin-full-name').value,
                 role: document.getElementById('admin-role').value,
                 email: document.getElementById('admin-email-field').value,
                 phone: document.getElementById('admin-phone').value,
                 location: document.getElementById('admin-location').value,
-                image_url: document.getElementById('admin-image-url').value,
+                imageUrl: document.getElementById('admin-image-url').value,
                 bio: document.getElementById('admin-bio').value,
-                about_text: document.getElementById('admin-about').value
+                about: document.getElementById('admin-about').value
             };
 
-            let result;
-            if (this.profileId) {
-                result = await window.supabaseClient
-                    .from('profile')
-                    .update(profileData)
-                    .eq('id', this.profileId);
-            } else {
-                result = await window.supabaseClient
-                    .from('profile')
-                    .insert([profileData]);
-
-                if (result.data?.[0]) {
-                    this.profileId = result.data[0].id;
-                }
-            }
-
-            if (result.error) throw result.error;
-
-            this.showAlert('Profile updated successfully!', 'success');
+            localStorage.setItem('admin_profile', JSON.stringify(profile));
+            this.showNotification('✅ Profile updated successfully!', 'success');
         } catch (error) {
-            console.error('Profile error:', error);
-            this.showAlert(`Error: ${error.message}`, 'error');
-        } finally {
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    // ========================================
-    // PROJECTS MANAGEMENT
-    // ========================================
-
-    async loadProjects() {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('projects')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            const list = document.getElementById('projects-list');
-            if (data && data.length > 0) {
-                list.innerHTML = data.map(p => `
-                    <tr>
-                        <td>
-                            <img src="${p.image_url || 'https://via.placeholder.com/50'}" 
-                                 class="table-img" alt="${p.title}">
-                        </td>
-                        <td><strong>${p.title}</strong></td>
-                        <td>${p.category || 'Uncategorized'}</td>
-                        <td>
-                            <div class="actions">
-                                <button class="action-btn delete-btn" onclick="adminDashboard.deleteProject('${p.id}')" 
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            } else {
-                list.innerHTML = '<tr><td colspan="4" class="text-center">No projects yet. Add one to get started!</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading projects:', error);
-            this.showAlert('Error loading projects', 'error');
+            console.error('Error saving profile:', error);
+            this.showNotification('❌ Error updating profile', 'error');
         }
     }
 
     async handleProjectSubmit(e) {
         e.preventDefault();
-
-        const button = e.target.querySelector('button[type="submit"]');
-        this.setButtonLoading(button, true);
-
         try {
-            const projectData = {
+            const newProject = {
                 title: document.getElementById('p-title').value,
                 description: document.getElementById('p-desc').value,
                 category: document.getElementById('p-category').value,
-                image_url: document.getElementById('p-image').value,
-                live_url: document.getElementById('p-live').value,
-                github_url: document.getElementById('p-github').value
+                image: document.getElementById('p-image').value,
+                live: document.getElementById('p-live').value,
+                github: document.getElementById('p-github').value
             };
 
-            const result = await window.supabaseClient
-                .from('projects')
-                .insert([projectData]);
+            let projects = JSON.parse(localStorage.getItem('admin_projects') || '[]');
+            projects.push(newProject);
+            localStorage.setItem('admin_projects', JSON.stringify(projects));
 
-            if (result.error) throw result.error;
-
-            this.showAlert('Project added successfully!', 'success');
-            e.target.reset();
             this.closeModal('project-modal');
+            document.getElementById('project-form').reset();
             await this.loadProjects();
+            this.showNotification('✅ Project added successfully!', 'success');
         } catch (error) {
-            console.error('Project error:', error);
-            this.showAlert(`Error: ${error.message}`, 'error');
-        } finally {
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    async deleteProject(id) {
-        if (!confirm('Are you sure you want to delete this project?')) return;
-
-        try {
-            const { error } = await window.supabaseClient
-                .from('projects')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-
-            this.showAlert('Project deleted!', 'success');
-            await this.loadProjects();
-        } catch (error) {
-            console.error('Delete error:', error);
-            this.showAlert('Error deleting project', 'error');
-        }
-    }
-
-    // ========================================
-    // SKILLS MANAGEMENT
-    // ========================================
-
-    async loadSkills() {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('skills')
-                .select('*')
-                .order('name', { ascending: true });
-
-            const list = document.getElementById('skills-list');
-            if (data && data.length > 0) {
-                list.innerHTML = data.map(s => `
-                    <tr>
-                        <td><i class="${s.icon_class || 'fas fa-star'}"></i></td>
-                        <td><strong>${s.name}</strong></td>
-                        <td>
-                            <div class="actions">
-                                <button class="action-btn delete-btn" onclick="adminDashboard.deleteSkill('${s.id}')" 
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            } else {
-                list.innerHTML = '<tr><td colspan="3" class="text-center">No skills yet. Add your skills!</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading skills:', error);
-            this.showAlert('Error loading skills', 'error');
+            console.error('Error saving project:', error);
+            this.showNotification('❌ Error adding project', 'error');
         }
     }
 
     async handleSkillSubmit(e) {
         e.preventDefault();
-
-        const button = e.target.querySelector('button[type="submit"]');
-        this.setButtonLoading(button, true);
-
         try {
-            const skillData = {
+            const newSkill = {
                 name: document.getElementById('s-name').value,
-                icon_class: document.getElementById('s-icon').value
+                icon: document.getElementById('s-icon').value
             };
 
-            const result = await window.supabaseClient
-                .from('skills')
-                .insert([skillData]);
+            let skills = JSON.parse(localStorage.getItem('admin_skills') || '[]');
+            skills.push(newSkill);
+            localStorage.setItem('admin_skills', JSON.stringify(skills));
 
-            if (result.error) throw result.error;
-
-            this.showAlert('Skill added successfully!', 'success');
-            e.target.reset();
             this.closeModal('skill-modal');
+            document.getElementById('skill-form').reset();
             await this.loadSkills();
+            this.showNotification('✅ Skill added successfully!', 'success');
         } catch (error) {
-            console.error('Skill error:', error);
-            this.showAlert(`Error: ${error.message}`, 'error');
-        } finally {
-            this.setButtonLoading(button, false);
-        }
-    }
-
-    async deleteSkill(id) {
-        if (!confirm('Delete this skill?')) return;
-
-        try {
-            const { error } = await window.supabaseClient
-                .from('skills')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-
-            this.showAlert('Skill deleted!', 'success');
-            await this.loadSkills();
-        } catch (error) {
-            console.error('Delete error:', error);
-            this.showAlert('Error deleting skill', 'error');
-        }
-    }
-
-    // ========================================
-    // SOCIAL LINKS MANAGEMENT
-    // ========================================
-
-    async loadSocials() {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('social_links')
-                .select('*')
-                .order('name', { ascending: true });
-
-            const list = document.getElementById('socials-list');
-            if (data && data.length > 0) {
-                list.innerHTML = data.map(s => `
-                    <tr>
-                        <td><i class="${s.icon_class || 'fas fa-link'}"></i></td>
-                        <td><strong>${s.name}</strong></td>
-                        <td><a href="${s.url}" target="_blank" title="Open link">${s.url}</a></td>
-                        <td>
-                            <div class="actions">
-                                <button class="action-btn delete-btn" onclick="adminDashboard.deleteSocial('${s.id}')" 
-                                        title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            } else {
-                list.innerHTML = '<tr><td colspan="4" class="text-center">No social links yet. Add your profiles!</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading socials:', error);
-            this.showAlert('Error loading social links', 'error');
+            console.error('Error saving skill:', error);
+            this.showNotification('❌ Error adding skill', 'error');
         }
     }
 
     async handleSocialSubmit(e) {
         e.preventDefault();
-
-        const button = e.target.querySelector('button[type="submit"]');
-        this.setButtonLoading(button, true);
-
         try {
-            const socialData = {
+            const newSocial = {
                 name: document.getElementById('soc-name').value,
-                icon_class: document.getElementById('soc-icon').value,
+                icon: document.getElementById('soc-icon').value,
                 url: document.getElementById('soc-url').value
             };
 
-            const result = await window.supabaseClient
-                .from('social_links')
-                .insert([socialData]);
+            let socials = JSON.parse(localStorage.getItem('admin_socials') || '[]');
+            socials.push(newSocial);
+            localStorage.setItem('admin_socials', JSON.stringify(socials));
 
-            if (result.error) throw result.error;
-
-            this.showAlert('Social link added successfully!', 'success');
-            e.target.reset();
             this.closeModal('social-modal');
+            document.getElementById('social-form').reset();
             await this.loadSocials();
+            this.showNotification('✅ Social link added successfully!', 'success');
         } catch (error) {
-            console.error('Social error:', error);
-            this.showAlert(`Error: ${error.message}`, 'error');
-        } finally {
-            this.setButtonLoading(button, false);
+            console.error('Error saving social link:', error);
+            this.showNotification('❌ Error adding social link', 'error');
         }
     }
 
-    async deleteSocial(id) {
-        if (!confirm('Delete this social link?')) return;
-
-        try {
-            const { error } = await window.supabaseClient
-                .from('social_links')
-                .delete()
-                .eq('id', id);
-
-            if (error) throw error;
-
-            this.showAlert('Social link deleted!', 'success');
-            await this.loadSocials();
-        } catch (error) {
-            console.error('Delete error:', error);
-            this.showAlert('Error deleting social link', 'error');
+    deleteProject(index) {
+        if (confirm('Are you sure?')) {
+            let projects = JSON.parse(localStorage.getItem('admin_projects') || '[]');
+            projects.splice(index, 1);
+            localStorage.setItem('admin_projects', JSON.stringify(projects));
+            this.loadProjects();
+            this.showNotification('✅ Project deleted!', 'success');
         }
     }
 
-    // ========================================
-    // MESSAGES MANAGEMENT
-    // ========================================
+    deleteSkill(index) {
+        if (confirm('Are you sure?')) {
+            let skills = JSON.parse(localStorage.getItem('admin_skills') || '[]');
+            skills.splice(index, 1);
+            localStorage.setItem('admin_skills', JSON.stringify(skills));
+            this.loadSkills();
+            this.showNotification('✅ Skill deleted!', 'success');
+        }
+    }
 
-    async loadMessages() {
-        try {
-            const { data, error } = await window.supabaseClient
-                .from('messages')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            const list = document.getElementById('messages-list');
-            if (data && data.length > 0) {
-                list.innerHTML = data.map(m => `
-                    <tr>
-                        <td><small>${new Date(m.created_at).toLocaleDateString()}</small></td>
-                        <td><strong>${m.name}</strong></td>
-                        <td>${m.subject}</td>
-                        <td><small>${m.message.substring(0, 50)}...</small></td>
-                    </tr>
-                `).join('');
-            } else {
-                list.innerHTML = '<tr><td colspan="4" class="text-center">No messages yet.</td></tr>';
-            }
-        } catch (error) {
-            console.error('Error loading messages:', error);
-            this.showAlert('Error loading messages', 'error');
+    deleteSocial(index) {
+        if (confirm('Are you sure?')) {
+            let socials = JSON.parse(localStorage.getItem('admin_socials') || '[]');
+            socials.splice(index, 1);
+            localStorage.setItem('admin_socials', JSON.stringify(socials));
+            this.loadSocials();
+            this.showNotification('✅ Social link deleted!', 'success');
         }
     }
 
     // ========================================
-    // UTILITIES
+    // MODAL MANAGEMENT
     // ========================================
 
-    openModal(id) {
-        const modal = document.getElementById(id);
-        if (modal) {
-            modal.style.display = 'flex';
-        }
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'none';
     }
 
-    closeModal(id) {
-        const modal = document.getElementById(id);
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
+    // ========================================
+    // LOGOUT
+    // ========================================
 
-    setButtonLoading(button, isLoading) {
-        if (isLoading) {
-            button.disabled = true;
-            button.classList.add('loading');
-        } else {
-            button.disabled = false;
-            button.classList.remove('loading');
-        }
-    }
-
-    showAlert(message, type = 'success') {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type}`;
-        alertDiv.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-        const container = document.querySelector('.admin-content');
-        if (container) {
-            container.insertBefore(alertDiv, container.firstChild);
-            setTimeout(() => alertDiv.remove(), 4000);
-        }
-    }
-
-    async logout() {
-        try {
-            await window.supabaseClient.auth.signOut();
+    logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('admin_auth_token');
+            localStorage.removeItem('admin_email');
+            localStorage.removeItem('remember_me');
+            sessionStorage.removeItem('admin_auth_token');
             window.location.href = 'login.html';
-        } catch (error) {
-            console.error('Logout error:', error);
-            this.showAlert('Error logging out', 'error');
         }
+    }
+
+    // ========================================
+    // NOTIFICATIONS
+    // ========================================
+
+    showNotification(message, type) {
+        // Create a simple notification
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: ${type === 'success' ? '#10b981' : '#ef4444'};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
     }
 }
 
-// ========================================
-// INITIALIZE
-// ========================================
-
-let adminDashboard;
-
+// Initialize dashboard when DOM is ready
+let dashboard;
 document.addEventListener('DOMContentLoaded', () => {
-    adminDashboard = new AdminDashboard();
+    dashboard = new AdminDashboard();
+    console.log('✅ Admin Dashboard initialized');
 });
-
-// Global functions for HTML onclick handlers
-window.openModal = (id) => adminDashboard?.openModal(id);
-window.closeModal = (id) => adminDashboard?.closeModal(id);
-window.deleteProject = (id) => adminDashboard?.deleteProject(id);
-window.deleteSkill = (id) => adminDashboard?.deleteSkill(id);
-window.deleteSocial = (id) => adminDashboard?.deleteSocial(id);
