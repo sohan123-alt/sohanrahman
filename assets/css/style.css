@@ -750,40 +750,7 @@ section {
     margin-bottom: var(--spacing-xl);
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: var(--spacing-lg);
-    margin-top: var(--spacing-xl);
-}
 
-.stat-card {
-    background: var(--card-bg);
-    padding: var(--spacing-xl);
-    border-radius: var(--radius-lg);
-    text-align: center;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--card-shadow);
-    transition: all var(--transition-base);
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--card-shadow-hover);
-    border-color: var(--primary-color);
-}
-
-.stat-card h4 {
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: var(--spacing-sm);
-}
-
-.stat-card p {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin: 0;
-}
 
 /* =========================================
    SKILLS SECTION
