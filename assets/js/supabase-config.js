@@ -1,6 +1,6 @@
-// =========================================
+// ========================================
 // SUPABASE CONFIGURATION
-// =========================================
+// ========================================
 
 const SUPABASE_URL =
     'https://qpevxichqzeuqswvacqa.supabase.co';
@@ -8,17 +8,30 @@ const SUPABASE_URL =
 const SUPABASE_ANON_KEY =
     'sb_publishable_pz9O2PocfjwdFNSlkfnAtw_Hni6wFAh';
 
-// CREATE SUPABASE CLIENT
+// CHECK SUPABASE LIBRARY
 
-// window.supabase আসে CDN থেকে
-// তাই আলাদা variable use করতে হবে
+if (!window.supabase) {
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-);
+    console.error('❌ Supabase library not loaded');
 
-console.log('Supabase client initialized successfully');
+} else {
 
-// GLOBAL ACCESS
-window.db = supabaseClient;
+    // ========================================
+    // CREATE CLIENT
+    // ========================================
+
+    const supabaseClient =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+        );
+
+    // ========================================
+    // GLOBAL ACCESS
+    // ========================================
+
+    window.supabaseClient = supabaseClient;
+
+    console.log('✅ Supabase client initialized successfully');
+
+}
