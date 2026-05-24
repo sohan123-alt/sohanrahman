@@ -120,21 +120,16 @@ class AdminDashboard {
     async loadProfile() {
         try {
             const { data, error } = await window.supabaseClient
-    .from('profile')
-    .select('*')
-    .limit(1);
+                .from('profile')
+                .select('*')
+                .limit(1);
 
-if (error) {
-    console.error(error);
-    return;
-}
+            if (error) throw error;
 
-if (!data || data.length === 0) {
-    console.log('No profile found');
-    return;
-}
-
-const profile = data[0];
+            if (!data || data.length === 0) {
+                console.log('No profile found');
+                return;
+            }
 
             const profile = data[0];
 
