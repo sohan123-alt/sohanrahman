@@ -204,50 +204,50 @@ document.addEventListener('DOMContentLoaded', () => {
             // ========================================
             // PROFILE
             // ========================================
+// ========================================
+// FETCH PROFILE
+// ========================================
 
-            const {
-                data: profile,
-                error: profileError
-            } = await window.supabaseClient
-                .from('profile')
-                .select('*')
-                .limit(1)
-                .single();
+const { data: profiles, error: pError } = await window.supabaseClient
+    .from('profile')
+    .select('*')
+    .limit(1);
 
-            if (profileError) {
+if (pError) {
+    console.error('Profile Error:', pError);
+} else {
 
-                console.error('Profile Error:', profileError);
+    const profile = profiles?.[0];
 
-            }
+    if (profile) {
 
-            if (profile) {
+        document.getElementById('hero-name').textContent =
+            profile.full_name || 'Your Name';
 
-                document.getElementById('hero-name').textContent =
-                    profile.full_name || 'Portfolio Owner';
+        document.getElementById('hero-role').textContent =
+            profile.role || 'Creative Developer';
 
-                document.getElementById('hero-role').textContent =
-                    profile.role || 'Creative Developer';
+        document.getElementById('hero-bio').textContent =
+            profile.bio || '';
 
-                document.getElementById('hero-bio').textContent =
-                    profile.bio || '';
+        document.getElementById('about-text').textContent =
+            profile.about_text || '';
 
-                document.getElementById('about-text').textContent =
-                    profile.about_text || '';
+        document.getElementById('profile-img').src =
+            profile.image_url ||
+            'https://i.imgur.com/6VBx3io.png';
 
-                document.getElementById('profile-img').src =
-                    profile.image_url ||
-                    'https://via.placeholder.com/500';
+        document.getElementById('contact-email').textContent =
+            profile.email || '';
 
-                document.getElementById('contact-email').textContent =
-                    profile.email || '';
+        document.getElementById('contact-phone').textContent =
+            profile.phone || '';
 
-                document.getElementById('contact-phone').textContent =
-                    profile.phone || '';
-
-                document.getElementById('contact-location').textContent =
-                    profile.location || '';
-
-            }
+        document.getElementById('contact-location').textContent =
+            profile.location || '';
+    }
+}
+            
 
             // ========================================
             // SKILLS
