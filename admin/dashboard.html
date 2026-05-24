@@ -8,237 +8,377 @@
     <title>Admin Dashboard | Portfolio</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
 <body class="admin-body">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h3><i class="fas fa-lock"></i> Admin</h3>
-        </div>
-
-        <nav class="sidebar-nav">
-            <ul>
-                <li><a href="#" class="active" data-tab="profile">
-                        <i class="fas fa-user"></i> <span>Profile</span>
-                    </a></li>
-                <li><a href="#" data-tab="projects">
-                        <i class="fas fa-tasks"></i> <span>Projects</span>
-                    </a></li>
-                <li><a href="#" data-tab="skills">
-                        <i class="fas fa-lightbulb"></i> <span>Skills</span>
-                    </a></li>
-                <li><a href="#" data-tab="social">
-                        <i class="fas fa-share-alt"></i> <span>Social</span>
-                    </a></li>
-                <li><a href="#" data-tab="messages">
-                        <i class="fas fa-envelope"></i> <span>Messages</span>
-                    </a></li>
-            </ul>
-        </nav>
-
-        <div class="sidebar-footer">
-            <button id="logout-btn" class="btn secondary-btn w-100">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="admin-main">
-        <header class="admin-header">
-            <h2 id="tab-title">Profile Management</h2>
-            <div class="user-info">
-                <span id="admin-email">admin@example.com</span>
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="brand-title">
+                    <i class="fas fa-crown"></i> Admin Panel
+                </h1>
             </div>
-        </header>
-
-        <div class="admin-content">
-            <!-- Profile Tab -->
-            <div id="profile-tab" class="tab-content active">
-                <form id="profile-form" class="admin-form">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="admin-full-name" placeholder="Your full name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Professional Title</label>
-                            <input type="text" id="admin-role" placeholder="e.g., Full Stack Developer" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="admin-email-field" placeholder="your@email.com" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number</label>
-                            <input type="text" id="admin-phone" placeholder="Your phone number">
-                        </div>
-                        <div class="form-group">
-                            <label>Location</label>
-                            <input type="text" id="admin-location" placeholder="City, Country">
-                        </div>
-                        <div class="form-group">
-                            <label>Profile Image URL</label>
-                            <input type="url" id="admin-image-url" placeholder="https://example.com/image.jpg">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Short Bio</label>
-                        <textarea id="admin-bio" placeholder="Write a short bio about yourself..." rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>About Me (Detailed)</label>
-                        <textarea id="admin-about" placeholder="Detailed information about you..." rows="6"></textarea>
-                    </div>
-                    <button type="submit" class="btn primary-btn">
-                        <i class="fas fa-save"></i> Update Profile
+            <div class="navbar-right">
+                <div class="user-profile">
+                    <span id="admin-email">Loading...</span>
+                    <button id="logout-btn" class="btn btn-logout" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
                     </button>
-                </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="admin-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-tab="overview">
+                        <i class="fas fa-home"></i>
+                        <span>Overview</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="profile">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="projects">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Projects</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="skills">
+                        <i class="fas fa-star"></i>
+                        <span>Skills</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="social">
+                        <i class="fas fa-share-nodes"></i>
+                        <span>Social Links</span>
+                    </a>
+                    <a href="#" class="nav-item" data-tab="messages">
+                        <i class="fas fa-envelope"></i>
+                        <span>Messages</span>
+                        <span class="badge" id="message-count">0</span>
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-content active">
+                <div class="page-header">
+                    <div>
+                        <h2>Dashboard Overview</h2>
+                        <p class="text-muted">Welcome to your portfolio management system</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon projects-icon">
+                            <i class="fas fa-folder"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="project-count">0</h3>
+                            <p>Projects</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon skills-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="skill-count">0</h3>
+                            <p>Skills</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon social-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="social-count">0</h3>
+                            <p>Social Links</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon messages-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-messages">0</h3>
+                            <p>Messages</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="switchTab('profile')">
+                            <i class="fas fa-user-edit"></i> Edit Profile
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('project-modal')">
+                            <i class="fas fa-plus"></i> Add Project
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('skill-modal')">
+                            <i class="fas fa-plus"></i> Add Skill
+                        </button>
+                        <button class="btn btn-primary" onclick="openModal('social-modal')">
+                            <i class="fas fa-plus"></i> Add Social Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content">
+                <div class="page-header">
+                    <h2>Profile Management</h2>
+                    <p class="text-muted">Update your personal information and bio</p>
+                </div>
+
+                <div class="card">
+                    <form id="profile-form" class="form-layout">
+                        <div class="form-section">
+                            <h3>Basic Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="admin-full-name">Full Name</label>
+                                    <input type="text" id="admin-full-name" placeholder="Your full name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-role">Professional Title</label>
+                                    <input type="text" id="admin-role" placeholder="e.g., Full Stack Developer" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="admin-email-field">Email Address</label>
+                                    <input type="email" id="admin-email-field" placeholder="your@email.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-phone">Phone Number</label>
+                                    <input type="tel" id="admin-phone" placeholder="+1 (555) 000-0000">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="admin-location">Location</label>
+                                    <input type="text" id="admin-location" placeholder="City, Country">
+                                </div>
+                                <div class="form-group">
+                                    <label for="admin-image-url">Profile Image URL</label>
+                                    <input type="url" id="admin-image-url" placeholder="https://example.com/image.jpg">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>Biography</h3>
+                            <div class="form-group">
+                                <label for="admin-bio">Short Bio</label>
+                                <textarea id="admin-bio" placeholder="Write a short bio about yourself..." rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="admin-about">Detailed About</label>
+                                <textarea id="admin-about" placeholder="Detailed information about you..." rows="5"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <button type="reset" class="btn btn-secondary">
+                                <i class="fas fa-redo"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <!-- Projects Tab -->
             <div id="projects-tab" class="tab-content">
-                <div class="tab-header">
-                    <h3>Manage Projects</h3>
-                    <button class="btn primary-btn" onclick="openModal('project-modal')">
-                        <i class="fas fa-plus"></i> Add Project
+                <div class="page-header">
+                    <div>
+                        <h2>Projects Management</h2>
+                        <p class="text-muted">Manage your portfolio projects</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('project-modal')">
+                        <i class="fas fa-plus"></i> Add New Project
                     </button>
                 </div>
-                <div class="admin-table-wrapper">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Title</th>
-                                <th>Category</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="projects-list">
-                            <tr>
-                                <td colspan="4" class="text-center">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projects-list">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Loading projects...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Skills Tab -->
             <div id="skills-tab" class="tab-content">
-                <div class="tab-header">
-                    <h3>Manage Skills</h3>
-                    <button class="btn primary-btn" onclick="openModal('skill-modal')">
-                        <i class="fas fa-plus"></i> Add Skill
+                <div class="page-header">
+                    <div>
+                        <h2>Skills Management</h2>
+                        <p class="text-muted">Showcase your technical skills</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('skill-modal')">
+                        <i class="fas fa-plus"></i> Add New Skill
                     </button>
                 </div>
-                <div class="admin-table-wrapper">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Icon</th>
-                                <th>Skill Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="skills-list">
-                            <tr>
-                                <td colspan="3" class="text-center">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Icon</th>
+                                    <th>Skill Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="skills-list">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Loading skills...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Social Links Tab -->
             <div id="social-tab" class="tab-content">
-                <div class="tab-header">
-                    <h3>Manage Social Links</h3>
-                    <button class="btn primary-btn" onclick="openModal('social-modal')">
-                        <i class="fas fa-plus"></i> Add Link
+                <div class="page-header">
+                    <div>
+                        <h2>Social Links</h2>
+                        <p class="text-muted">Connect your social media profiles</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="openModal('social-modal')">
+                        <i class="fas fa-plus"></i> Add Social Link
                     </button>
                 </div>
-                <div class="admin-table-wrapper">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Platform</th>
-                                <th>Icon</th>
-                                <th>URL</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="socials-list">
-                            <tr>
-                                <td colspan="4" class="text-center">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Platform</th>
+                                    <th>Icon</th>
+                                    <th>URL</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="socials-list">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Loading social links...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
             <!-- Messages Tab -->
             <div id="messages-tab" class="tab-content">
-                <div class="tab-header">
-                    <h3>Inbound Messages</h3>
+                <div class="page-header">
+                    <div>
+                        <h2>Inbound Messages</h2>
+                        <p class="text-muted">View messages from your contact form</p>
+                    </div>
                 </div>
-                <div class="admin-table-wrapper">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>From</th>
-                                <th>Subject</th>
-                                <th>Message</th>
-                            </tr>
-                        </thead>
-                        <tbody id="messages-list">
-                            <tr>
-                                <td colspan="4" class="text-center">Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>From</th>
+                                    <th>Email</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messages-list">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Loading messages...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
-    <!-- Modals -->
     <!-- Project Modal -->
     <div id="project-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Add New Project</h3>
-            <form id="project-form" class="admin-form">
+            <div class="modal-header">
+                <h3>Add New Project</h3>
+                <button class="modal-close" onclick="closeModal('project-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="project-form" class="modal-form">
                 <div class="form-group">
-                    <label>Project Title</label>
+                    <label for="p-title">Project Title</label>
                     <input type="text" id="p-title" placeholder="Project name" required>
                 </div>
                 <div class="form-group">
-                    <label>Description</label>
+                    <label for="p-desc">Description</label>
                     <textarea id="p-desc" placeholder="Project description..." rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Category</label>
+                    <label for="p-category">Category</label>
                     <input type="text" id="p-category" placeholder="e.g., Web Design">
                 </div>
                 <div class="form-group">
-                    <label>Image URL</label>
+                    <label for="p-image">Image URL</label>
                     <input type="url" id="p-image" placeholder="https://example.com/image.jpg" required>
                 </div>
                 <div class="form-group">
-                    <label>Live Link</label>
+                    <label for="p-live">Live Link</label>
                     <input type="url" id="p-live" placeholder="https://project.com">
                 </div>
                 <div class="form-group">
-                    <label>GitHub Link</label>
+                    <label for="p-github">GitHub Link</label>
                     <input type="url" id="p-github" placeholder="https://github.com/username/project">
                 </div>
-                <button type="submit" class="btn primary-btn w-100">
-                    <i class="fas fa-save"></i> Save Project
-                </button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Project
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('project-modal')">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -246,20 +386,30 @@
     <!-- Skill Modal -->
     <div id="skill-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Add New Skill</h3>
-            <form id="skill-form" class="admin-form">
+            <div class="modal-header">
+                <h3>Add New Skill</h3>
+                <button class="modal-close" onclick="closeModal('skill-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="skill-form" class="modal-form">
                 <div class="form-group">
-                    <label>Skill Name</label>
+                    <label for="s-name">Skill Name</label>
                     <input type="text" id="s-name" placeholder="e.g., React" required>
                 </div>
                 <div class="form-group">
-                    <label>Icon Class (FontAwesome)</label>
+                    <label for="s-icon">Icon Class (FontAwesome)</label>
                     <input type="text" id="s-icon" placeholder="fab fa-react" required>
+                    <small>Example: fab fa-react, fas fa-code, etc.</small>
                 </div>
-                <button type="submit" class="btn primary-btn w-100">
-                    <i class="fas fa-save"></i> Save Skill
-                </button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Skill
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('skill-modal')">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -267,24 +417,33 @@
     <!-- Social Modal -->
     <div id="social-modal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Add Social Link</h3>
-            <form id="social-form" class="admin-form">
+            <div class="modal-header">
+                <h3>Add Social Link</h3>
+                <button class="modal-close" onclick="closeModal('social-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="social-form" class="modal-form">
                 <div class="form-group">
-                    <label>Platform Name</label>
+                    <label for="soc-name">Platform Name</label>
                     <input type="text" id="soc-name" placeholder="e.g., LinkedIn" required>
                 </div>
                 <div class="form-group">
-                    <label>Icon Class (FontAwesome)</label>
+                    <label for="soc-icon">Icon Class (FontAwesome)</label>
                     <input type="text" id="soc-icon" placeholder="fab fa-linkedin" required>
                 </div>
                 <div class="form-group">
-                    <label>Profile URL</label>
+                    <label for="soc-url">Profile URL</label>
                     <input type="url" id="soc-url" placeholder="https://linkedin.com/in/yourprofile" required>
                 </div>
-                <button type="submit" class="btn primary-btn w-100">
-                    <i class="fas fa-save"></i> Save Link
-                </button>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Link
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('social-modal')">
+                        Cancel
+                    </button>
+                </div>
             </form>
         </div>
     </div>
