@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Select Elements
+
+    // ========================================
+    // SELECT ELEMENTS
+    // ========================================
+
     const navbar = document.querySelector('.navbar');
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -8,220 +12,501 @@ document.addEventListener('DOMContentLoaded', () => {
     const fadeElements = document.querySelectorAll('.fade-in');
     const contactForm = document.getElementById('contact-form');
 
-    // 1. Preloader
+    // ========================================
+    // PRELOADER
+    // ========================================
+
     window.addEventListener('load', () => {
+
+        if (!preloader) return;
+
         setTimeout(() => {
+
             preloader.style.opacity = '0';
+
             setTimeout(() => {
+
                 preloader.style.display = 'none';
+
             }, 500);
-        }, 1000);
+
+        }, 800);
+
     });
 
-    // 2. Navbar Scroll Effect
+    // ========================================
+    // NAVBAR SCROLL EFFECT
+    // ========================================
+
     window.addEventListener('scroll', () => {
+
         if (window.scrollY > 50) {
+
             navbar.classList.add('scrolled');
+
         } else {
+
             navbar.classList.remove('scrolled');
+
         }
 
-        // Active Link on Scroll
         updateActiveLink();
+
     });
 
     function updateActiveLink() {
+
         let current = '';
+
         const sections = document.querySelectorAll('section');
+
         sections.forEach(section => {
+
             const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.pageYOffset >= (sectionTop - 200)) {
+
+            if (window.pageYOffset >= sectionTop - 200) {
+
                 current = section.getAttribute('id');
+
             }
+
         });
 
-        document.querySelectorAll('.nav-links a').forEach(a => {
-            a.classList.remove('active');
-            if (a.getAttribute('href').includes(current)) {
-                a.classList.add('active');
+        document.querySelectorAll('.nav-links a').forEach(link => {
+
+            link.classList.remove('active');
+
+            if (link.getAttribute('href') === `#${current}`) {
+
+                link.classList.add('active');
+
             }
+
         });
+
     }
 
-    // 3. Mobile Menu
-    hamburger.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-        hamburger.classList.toggle('active');
-    });
+    // ========================================
+    // MOBILE MENU
+    // ========================================
 
-    // Close menu when link clicked
+    if (hamburger && navLinks) {
+
+        hamburger.addEventListener('click', () => {
+
+            hamburger.classList.toggle('active');
+
+            navLinks.classList.toggle('active');
+
+        });
+
+    }
+
+    // CLOSE MOBILE MENU
+
     document.querySelectorAll('.nav-links a').forEach(link => {
+
         link.addEventListener('click', () => {
+
             navLinks.classList.remove('active');
+
             hamburger.classList.remove('active');
+
         });
+
     });
 
-    // 4. Dark/Light Mode
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const icon = themeToggle.querySelector('i');
-        if (document.body.classList.contains('dark-mode')) {
-            icon.classList.replace('fa-moon', 'fa-sun');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            icon.classList.replace('fa-sun', 'fa-moon');
-            localStorage.setItem('theme', 'light');
-        }
-    });
+    // ========================================
+    // DARK / LIGHT MODE
+    // ========================================
 
-    // Check saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
-        document.body.classList.add('dark-mode');
-        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    if (themeToggle) {
+
+        themeToggle.addEventListener('click', () => {
+
+            document.body.classList.toggle('dark-mode');
+
+            const icon = themeToggle.querySelector('i');
+
+            if (document.body.classList.contains('dark-mode')) {
+
+                icon.classList.replace('fa-moon', 'fa-sun');
+
+                localStorage.setItem('theme', 'dark');
+
+            } else {
+
+                icon.classList.replace('fa-sun', 'fa-moon');
+
+                localStorage.setItem('theme', 'light');
+
+            }
+
+        });
+
     }
 
-    // 5. Scroll Animations
-    const observerOptions = {
-        threshold: 0.1
-    };
+    // LOAD SAVED THEME
+
+    const savedTheme = localStorage.getItem('theme');
+
+    if (savedTheme === 'dark') {
+
+        document.body.classList.add('dark-mode');
+
+        if (themeToggle) {
+
+            themeToggle
+                .querySelector('i')
+                .classList.replace('fa-moon', 'fa-sun');
+
+        }
+
+    }
+
+    // ========================================
+    // SCROLL ANIMATION
+    // ========================================
 
     const observer = new IntersectionObserver((entries) => {
+
         entries.forEach(entry => {
+
             if (entry.isIntersecting) {
+
                 entry.target.classList.add('visible');
+
             }
+
         });
-    }, observerOptions);
+
+    }, {
+        threshold: 0.1
+    });
 
     fadeElements.forEach(el => observer.observe(el));
 
-    // 6. Supabase Data Integration
+    // ========================================
+    // FETCH DATA FROM SUPABASE
+    // ========================================
+
     async function fetchData() {
-        if (!window.supabaseClient) {
-            console.error("Supabase not initialized. Check your config.");
-            return;
-        }
 
         try {
-            // Fetch Profile
-            const { data: profile, error: pError } = await window.supabaseClient
+
+            if (!window.supabaseClient) {
+
+                console.error('❌ Supabase client not found');
+
+                return;
+            }
+
+            // ========================================
+            // PROFILE
+            // ========================================
+
+            const {
+                data: profile,
+                error: profileError
+            } = await window.supabaseClient
                 .from('profile')
                 .select('*')
+                .limit(1)
                 .single();
 
-            if (profile) {
-                document.getElementById('hero-name').textContent = profile.full_name || 'Loading...';
-                document.getElementById('hero-role').textContent = profile.role || 'Creative Developer';
-                document.getElementById('hero-bio').textContent = profile.bio || '';
-                document.getElementById('about-text').textContent = profile.about_text || '';
-                document.getElementById('profile-img').src = profile.image_url || 'https://via.placeholder.com/500';
-                document.getElementById('contact-email').textContent = profile.email || '';
-                document.getElementById('contact-phone').textContent = profile.phone || '';
-                document.getElementById('contact-location').textContent = profile.location || '';
+            if (profileError) {
+
+                console.error('Profile Error:', profileError);
+
             }
 
-            // Fetch Skills
-            const { data: skills, error: sError } = await window.supabaseClient
+            if (profile) {
+
+                document.getElementById('hero-name').textContent =
+                    profile.full_name || 'Portfolio Owner';
+
+                document.getElementById('hero-role').textContent =
+                    profile.role || 'Creative Developer';
+
+                document.getElementById('hero-bio').textContent =
+                    profile.bio || '';
+
+                document.getElementById('about-text').textContent =
+                    profile.about_text || '';
+
+                document.getElementById('profile-img').src =
+                    profile.image_url ||
+                    'https://via.placeholder.com/500';
+
+                document.getElementById('contact-email').textContent =
+                    profile.email || '';
+
+                document.getElementById('contact-phone').textContent =
+                    profile.phone || '';
+
+                document.getElementById('contact-location').textContent =
+                    profile.location || '';
+
+            }
+
+            // ========================================
+            // SKILLS
+            // ========================================
+
+            const {
+                data: skills,
+                error: skillsError
+            } = await window.supabaseClient
                 .from('skills')
-                .select('*');
+                .select('*')
+                .order('id', {
+                    ascending: true
+                });
+
+            if (skillsError) {
+
+                console.error('Skills Error:', skillsError);
+
+            }
 
             if (skills) {
-                const skillsContainer = document.getElementById('skills-container');
+
+                const skillsContainer =
+                    document.getElementById('skills-container');
+
                 skillsContainer.innerHTML = skills.map(skill => `
+
                     <div class="skill-card fade-in">
+
                         <i class="${skill.icon_class}"></i>
+
                         <h4>${skill.name}</h4>
+
                     </div>
+
                 `).join('');
-                // Observe new elements
-                document.querySelectorAll('.skill-card').forEach(el => observer.observe(el));
+
+                document
+                    .querySelectorAll('.skill-card')
+                    .forEach(el => observer.observe(el));
+
             }
 
-            // Fetch Projects
-            const { data: projects, error: prError } = await window.supabaseClient
+            // ========================================
+            // PROJECTS
+            // ========================================
+
+            const {
+                data: projects,
+                error: projectsError
+            } = await window.supabaseClient
                 .from('projects')
-                .select('*');
+                .select('*')
+                .order('id', {
+                    ascending: false
+                });
+
+            if (projectsError) {
+
+                console.error('Projects Error:', projectsError);
+
+            }
 
             if (projects) {
-                const projectsContainer = document.getElementById('projects-container');
+
+                const projectsContainer =
+                    document.getElementById('projects-container');
+
                 projectsContainer.innerHTML = projects.map(project => `
-                    <div class="project-card fade-in" data-category="${project.category}">
+
+                    <div
+                        class="project-card fade-in"
+                        data-category="${project.category || 'all'}"
+                    >
+
                         <div class="project-img">
-                            <img src="${project.image_url}" alt="${project.title}">
+
+                            <img
+                                src="${project.image_url || 'https://via.placeholder.com/600'}"
+                                alt="${project.title}"
+                                loading="lazy"
+                                onerror="this.src='https://via.placeholder.com/600'"
+                            >
+
                         </div>
+
                         <div class="project-info">
-                            <h3>${project.title}</h3>
-                            <p>${project.description}</p>
+
+                            <h3>${project.title || 'Untitled Project'}</h3>
+
+                            <p>${project.description || ''}</p>
+
                             <div class="project-links">
-                                <a href="${project.live_url}" target="_blank"><i class="fas fa-external-link-alt"></i></a>
-                                <a href="${project.github_url}" target="_blank"><i class="fab fa-github"></i></a>
+
+                                ${project.live_url ? `
+                                    <a
+                                        href="${project.live_url}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                ` : ''}
+
+                                ${project.github_url ? `
+                                    <a
+                                        href="${project.github_url}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <i class="fab fa-github"></i>
+                                    </a>
+                                ` : ''}
+
                             </div>
+
                         </div>
+
                     </div>
+
                 `).join('');
-                document.querySelectorAll('.project-card').forEach(el => observer.observe(el));
+
+                document
+                    .querySelectorAll('.project-card')
+                    .forEach(el => observer.observe(el));
+
             }
 
-            // Fetch Social Links
-            const { data: socials, error: socError } = await window.supabaseClient
+            // ========================================
+            // SOCIAL LINKS
+            // ========================================
+
+            const {
+                data: socials,
+                error: socialsError
+            } = await window.supabaseClient
                 .from('social_links')
                 .select('*');
 
-            if (socials) {
-                const socialHtml = socials.map(soc => `
-                    <a href="${soc.url}" target="_blank"><i class="${soc.icon_class}"></i></a>
-                `).join('');
-                document.getElementById('hero-socials').innerHTML = socialHtml;
-                document.getElementById('footer-socials').innerHTML = socialHtml;
+            if (socialsError) {
+
+                console.error('Social Error:', socialsError);
+
             }
 
+            if (socials) {
+
+                const socialHTML = socials.map(social => `
+
+                    <a
+                        href="${social.url}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+
+                        <i class="${social.icon_class}"></i>
+
+                    </a>
+
+                `).join('');
+
+                document.getElementById('hero-socials').innerHTML =
+                    socialHTML;
+
+                document.getElementById('footer-socials').innerHTML =
+                    socialHTML;
+
+            }
+
+            console.log('✅ Portfolio data loaded');
+
         } catch (error) {
-            console.error("Error fetching data from Supabase:", error);
+
+            console.error('❌ Fetch Error:', error);
+
         }
+
     }
 
-    // Call fetch if supabase is ready
-    if (window.supabaseClient) {
-        fetchData();
-    }
+    // ========================================
+    // CALL FETCH DATA
+    // ========================================
 
-    // 7. Contact Form Submission
+    fetchData();
+
+    // ========================================
+    // CONTACT FORM
+    // ========================================
+
     if (contactForm) {
-        contactForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const submitBtn = contactForm.querySelector('button');
-            const originalText = submitBtn.textContent;
 
-            submitBtn.textContent = 'Sending...';
+        contactForm.addEventListener('submit', async (e) => {
+
+            e.preventDefault();
+
+            const submitBtn =
+                contactForm.querySelector('button');
+
+            const originalText =
+                submitBtn.innerHTML;
+
             submitBtn.disabled = true;
 
+            submitBtn.innerHTML = 'Sending...';
+
             const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value,
-                created_at: new Date()
+
+                name:
+                    document.getElementById('name').value.trim(),
+
+                email:
+                    document.getElementById('email').value.trim(),
+
+                subject:
+                    document.getElementById('subject').value.trim(),
+
+                message:
+                    document.getElementById('message').value.trim(),
+
+                created_at:
+                    new Date().toISOString()
+
             };
 
             try {
-                const { error } = await window.supabaseClient
+
+                const {
+                    error
+                } = await window.supabaseClient
                     .from('messages')
                     .insert([formData]);
 
-                if (error) throw error;
+                if (error) {
 
-                alert('Message sent successfully!');
+                    throw error;
+
+                }
+
+                alert('✅ Message sent successfully');
+
                 contactForm.reset();
+
             } catch (error) {
-                console.error('Error:', error);
-                alert('Failed to send message. Please try again.');
+
+                console.error(error);
+
+                alert('❌ Failed to send message');
+
             } finally {
-                submitBtn.textContent = originalText;
+
                 submitBtn.disabled = false;
+
+                submitBtn.innerHTML = originalText;
+
             }
+
         });
+
     }
+
 });
