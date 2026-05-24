@@ -1,5 +1,5 @@
 // ========================================
-// ADMIN DASHBOARD WITH SUPABASE - COMPLETE
+// ADMIN DASHBOARD - SMOOTH VERSION
 // ========================================
 
 class AdminDashboard {
@@ -8,21 +8,27 @@ class AdminDashboard {
     }
 
     async init() {
+        console.log('Initializing Admin Dashboard...');
+        
         await this.checkAuth();
-        this.setupNavigation();
         this.setupEventListeners();
+        this.setupNavigation();
         this.setupSidebarToggle();
-        await this.loadProfile();
-        await this.loadProjects();
-        await this.loadSkills();
-        await this.loadSocials();
-        await this.loadMessages();
-        this.updateStats();
-        console.log('✅ Dashboard Ready');
+        
+        // Load all data
+        await Promise.all([
+            this.loadProfile(),
+            this.loadProjects(),
+            this.loadSkills(),
+            this.loadSocials(),
+            this.loadMessages()
+        ]);
+
+        console.log('✅ Admin Dashboard Ready');
     }
 
     // ========================================
-    // AUTH CHECK
+    // AUTHENTICATION
     // ========================================
 
     async checkAuth() {
@@ -35,7 +41,6 @@ class AdminDashboard {
             }
 
             document.getElementById('admin-email').textContent = session.user.email;
-            console.log('✅ User authenticated:', session.user.email);
         } catch (error) {
             console.error('Auth error:', error);
             window.location.href = 'login.html';
@@ -43,20 +48,20 @@ class AdminDashboard {
     }
 
     // ========================================
-    // SIDEBAR TOGGLE (মোবাইলের জন্য)
+    // SIDEBAR & NAVIGATION
     // ========================================
 
     setupSidebarToggle() {
-        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggle = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('sidebar');
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => {
+        if (toggle) {
+            toggle.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
             });
         }
 
-        // মোবাইলে ক্লিক করলে সাইডবার বন্ধ হবে
+        // Close sidebar on mobile when nav item clicked
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 if (window.innerWidth < 768) {
@@ -65,10 +70,6 @@ class AdminDashboard {
             });
         });
     }
-
-    // ========================================
-    // NAVIGATION
-    // ========================================
 
     setupNavigation() {
         document.querySelectorAll('.nav-item').forEach(link => {
@@ -80,13 +81,13 @@ class AdminDashboard {
     }
 
     switchTab(element) {
-        // আগের ট্যাব ডিঅ্যাক্টিভ করুন
+        // Remove active from all nav items
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
         element.classList.add('active');
 
-        // ট্যাব কন্টেন্ট স্যুইচ করুন
+        // Switch tab content
         const tabId = element.getAttribute('data-tab');
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('active');
@@ -96,6 +97,17 @@ class AdminDashboard {
         if (activeTab) {
             activeTab.classList.add('active');
         }
+
+        // Update page title
+        const titles = {
+            'dashboard': 'Dashboard',
+            'profile': 'Profile Management',
+            'projects': 'Projects',
+            'skills': 'Skills',
+            'social': 'Social Links',
+            'messages': 'Messages'
+        };
+        document.getElementById('page-title').textContent = titles[tabId] || 'Dashboard';
     }
 
     // ========================================
@@ -103,18 +115,15 @@ class AdminDashboard {
     // ========================================
 
     setupEventListeners() {
-        // ফর্ম সাবমিট
         document.getElementById('profile-form')?.addEventListener('submit', (e) => this.handleProfileSubmit(e));
         document.getElementById('project-form')?.addEventListener('submit', (e) => this.handleProjectSubmit(e));
         document.getElementById('skill-form')?.addEventListener('submit', (e) => this.handleSkillSubmit(e));
         document.getElementById('social-form')?.addEventListener('submit', (e) => this.handleSocialSubmit(e));
-
-        // লগআউট
         document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
     }
 
     // ========================================
-    // PROFILE - LOAD
+    // PROFILE
     // ========================================
 
     async loadProfile() {
@@ -125,11 +134,7 @@ class AdminDashboard {
                 .limit(1);
 
             if (error) throw error;
-
-            if (!data || data.length === 0) {
-                console.log('No profile found');
-                return;
-            }
+            if (!data || data.length === 0) return;
 
             const profile = data[0];
 
@@ -148,14 +153,10 @@ class AdminDashboard {
         }
     }
 
-    // ========================================
-    // PROFILE - SAVE
-    // ========================================
-
     async handleProfileSubmit(e) {
         e.preventDefault();
-
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
@@ -171,7 +172,6 @@ class AdminDashboard {
                 about_text: document.getElementById('admin-about').value
             };
 
-            // চেক করুন প্রোফাইল আছে কিনা
             const { data: existing, error: checkError } = await window.supabaseClient
                 .from('profile')
                 .select('id')
@@ -180,41 +180,34 @@ class AdminDashboard {
             if (checkError) throw checkError;
 
             let result;
-
             if (existing && existing.length > 0) {
-                // আপডেট করুন
                 result = await window.supabaseClient
                     .from('profile')
                     .update(profileData)
                     .eq('id', existing[0].id);
             } else {
-                // তৈরি করুন
                 result = await window.supabaseClient
                     .from('profile')
                     .insert([profileData]);
             }
 
             if (result.error) throw result.error;
-
-            this.showNotification('✅ Profile Updated Successfully!', 'success');
-            console.log('✅ Profile saved');
+            this.showNotification('✅ Profile Updated!', 'success');
         } catch (error) {
             console.error('Error:', error);
             this.showNotification('❌ Error: ' + error.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            btn.innerHTML = originalText;
         }
     }
 
     // ========================================
-    // PROJECTS - LOAD
+    // PROJECTS
     // ========================================
 
     async loadProjects() {
         try {
-            const projectsList = document.getElementById('projects-list');
-
             const { data, error } = await window.supabaseClient
                 .from('projects')
                 .select('*')
@@ -224,26 +217,21 @@ class AdminDashboard {
 
             document.getElementById('project-count').textContent = data?.length || 0;
 
+            const projectsList = document.getElementById('projects-list');
             if (!data || data.length === 0) {
-                projectsList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No projects yet. Add your first project!</td></tr>';
+                projectsList.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i> No projects</td></tr>';
                 return;
             }
 
             projectsList.innerHTML = data.map(project => `
                 <tr>
+                    <td><img src="${project.image_url || 'https://via.placeholder.com/50'}" alt="${project.title}" style="width:50px;height:50px;border-radius:8px;object-fit:cover;"></td>
+                    <td>${project.title}</td>
+                    <td>${project.category || '-'}</td>
                     <td>
-                        <img src="${project.image_url || 'https://via.placeholder.com/50'}" 
-                             alt="${project.title}" 
-                             class="table-img">
-                    </td>
-                    <td><strong>${project.title}</strong></td>
-                    <td>${project.category || 'Uncategorized'}</td>
-                    <td>
-                        <div class="table-actions">
-                            <button class="action-btn delete" onclick="dashboard.deleteProject(${project.id})" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+                        <button class="action-btn" onclick="dashboard.deleteProject(${project.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('');
@@ -254,14 +242,10 @@ class AdminDashboard {
         }
     }
 
-    // ========================================
-    // PROJECTS - ADD
-    // ========================================
-
     async handleProjectSubmit(e) {
         e.preventDefault();
-
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
@@ -284,22 +268,18 @@ class AdminDashboard {
             e.target.reset();
             this.closeModal('project-modal');
             await this.loadProjects();
-            this.showNotification('✅ Project Added Successfully!', 'success');
+            this.showNotification('✅ Project Added!', 'success');
         } catch (error) {
             console.error('Error:', error);
             this.showNotification('❌ Error: ' + error.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Save Project';
+            btn.innerHTML = originalText;
         }
     }
 
-    // ========================================
-    // PROJECTS - DELETE
-    // ========================================
-
     async deleteProject(id) {
-        if (!confirm('Are you sure you want to delete this project?')) return;
+        if (!confirm('Delete this project?')) return;
 
         try {
             const { error } = await window.supabaseClient
@@ -308,7 +288,6 @@ class AdminDashboard {
                 .eq('id', id);
 
             if (error) throw error;
-
             await this.loadProjects();
             this.showNotification('✅ Project Deleted!', 'success');
         } catch (error) {
@@ -318,13 +297,11 @@ class AdminDashboard {
     }
 
     // ========================================
-    // SKILLS - LOAD
+    // SKILLS
     // ========================================
 
     async loadSkills() {
         try {
-            const skillsList = document.getElementById('skills-list');
-
             const { data, error } = await window.supabaseClient
                 .from('skills')
                 .select('*')
@@ -334,21 +311,20 @@ class AdminDashboard {
 
             document.getElementById('skill-count').textContent = data?.length || 0;
 
+            const skillsList = document.getElementById('skills-list');
             if (!data || data.length === 0) {
-                skillsList.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No skills yet. Add your first skill!</td></tr>';
+                skillsList.innerHTML = '<tr><td colspan="3" class="empty-state"><i class="fas fa-inbox"></i> No skills</td></tr>';
                 return;
             }
 
             skillsList.innerHTML = data.map(skill => `
                 <tr>
                     <td><i class="${skill.icon_class || 'fas fa-star'}"></i></td>
-                    <td><strong>${skill.name}</strong></td>
+                    <td>${skill.name}</td>
                     <td>
-                        <div class="table-actions">
-                            <button class="action-btn delete" onclick="dashboard.deleteSkill(${skill.id})" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+                        <button class="action-btn" onclick="dashboard.deleteSkill(${skill.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('');
@@ -359,14 +335,10 @@ class AdminDashboard {
         }
     }
 
-    // ========================================
-    // SKILLS - ADD
-    // ========================================
-
     async handleSkillSubmit(e) {
         e.preventDefault();
-
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
@@ -385,22 +357,18 @@ class AdminDashboard {
             e.target.reset();
             this.closeModal('skill-modal');
             await this.loadSkills();
-            this.showNotification('✅ Skill Added Successfully!', 'success');
+            this.showNotification('✅ Skill Added!', 'success');
         } catch (error) {
             console.error('Error:', error);
             this.showNotification('❌ Error: ' + error.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Save Skill';
+            btn.innerHTML = originalText;
         }
     }
 
-    // ========================================
-    // SKILLS - DELETE
-    // ========================================
-
     async deleteSkill(id) {
-        if (!confirm('Are you sure you want to delete this skill?')) return;
+        if (!confirm('Delete this skill?')) return;
 
         try {
             const { error } = await window.supabaseClient
@@ -409,7 +377,6 @@ class AdminDashboard {
                 .eq('id', id);
 
             if (error) throw error;
-
             await this.loadSkills();
             this.showNotification('✅ Skill Deleted!', 'success');
         } catch (error) {
@@ -419,13 +386,11 @@ class AdminDashboard {
     }
 
     // ========================================
-    // SOCIAL LINKS - LOAD
+    // SOCIAL LINKS
     // ========================================
 
     async loadSocials() {
         try {
-            const socialsList = document.getElementById('socials-list');
-
             const { data, error } = await window.supabaseClient
                 .from('social_links')
                 .select('*')
@@ -435,22 +400,21 @@ class AdminDashboard {
 
             document.getElementById('social-count').textContent = data?.length || 0;
 
+            const socialsList = document.getElementById('socials-list');
             if (!data || data.length === 0) {
-                socialsList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No social links yet. Add your profiles!</td></tr>';
+                socialsList.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i> No social links</td></tr>';
                 return;
             }
 
             socialsList.innerHTML = data.map(social => `
                 <tr>
-                    <td><strong>${social.name}</strong></td>
+                    <td>${social.name}</td>
                     <td><i class="${social.icon_class || 'fas fa-link'}"></i></td>
                     <td><a href="${social.url}" target="_blank">${social.url}</a></td>
                     <td>
-                        <div class="table-actions">
-                            <button class="action-btn delete" onclick="dashboard.deleteSocial(${social.id})" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
+                        <button class="action-btn" onclick="dashboard.deleteSocial(${social.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('');
@@ -461,14 +425,10 @@ class AdminDashboard {
         }
     }
 
-    // ========================================
-    // SOCIAL LINKS - ADD
-    // ========================================
-
     async handleSocialSubmit(e) {
         e.preventDefault();
-
         const btn = e.target.querySelector('button[type="submit"]');
+        const originalText = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
 
@@ -488,22 +448,18 @@ class AdminDashboard {
             e.target.reset();
             this.closeModal('social-modal');
             await this.loadSocials();
-            this.showNotification('✅ Social Link Added Successfully!', 'success');
+            this.showNotification('✅ Social Link Added!', 'success');
         } catch (error) {
             console.error('Error:', error);
             this.showNotification('❌ Error: ' + error.message, 'error');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-save"></i> Save Link';
+            btn.innerHTML = originalText;
         }
     }
 
-    // ========================================
-    // SOCIAL LINKS - DELETE
-    // ========================================
-
     async deleteSocial(id) {
-        if (!confirm('Are you sure you want to delete this social link?')) return;
+        if (!confirm('Delete this social link?')) return;
 
         try {
             const { error } = await window.supabaseClient
@@ -512,7 +468,6 @@ class AdminDashboard {
                 .eq('id', id);
 
             if (error) throw error;
-
             await this.loadSocials();
             this.showNotification('✅ Social Link Deleted!', 'success');
         } catch (error) {
@@ -522,13 +477,11 @@ class AdminDashboard {
     }
 
     // ========================================
-    // MESSAGES - LOAD
+    // MESSAGES
     // ========================================
 
     async loadMessages() {
         try {
-            const messagesList = document.getElementById('messages-list');
-
             const { data, error } = await window.supabaseClient
                 .from('messages')
                 .select('*')
@@ -537,18 +490,19 @@ class AdminDashboard {
             if (error) throw error;
 
             document.getElementById('total-messages').textContent = data?.length || 0;
-            document.getElementById('message-count').textContent = data?.length || 0;
+            document.getElementById('msg-badge').textContent = data?.length || 0;
 
+            const messagesList = document.getElementById('messages-list');
             if (!data || data.length === 0) {
-                messagesList.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No messages yet</td></tr>';
+                messagesList.innerHTML = '<tr><td colspan="4" class="empty-state"><i class="fas fa-inbox"></i> No messages</td></tr>';
                 return;
             }
 
             messagesList.innerHTML = data.map(msg => `
                 <tr>
-                    <td><strong>${msg.name || 'Unknown'}</strong></td>
+                    <td>${msg.name || 'Unknown'}</td>
                     <td>${msg.email || 'N/A'}</td>
-                    <td>${msg.subject || 'No Subject'}</td>
+                    <td>${msg.subject || '-'}</td>
                     <td>${new Date(msg.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
@@ -560,30 +514,7 @@ class AdminDashboard {
     }
 
     // ========================================
-    // UPDATE STATS
-    // ========================================
-
-    async updateStats() {
-        try {
-            const [{ count: projectCount }, { count: skillCount }, { count: socialCount }, { count: messageCount }] = await Promise.all([
-                window.supabaseClient.from('projects').select('*', { count: 'exact', head: true }),
-                window.supabaseClient.from('skills').select('*', { count: 'exact', head: true }),
-                window.supabaseClient.from('social_links').select('*', { count: 'exact', head: true }),
-                window.supabaseClient.from('messages').select('*', { count: 'exact', head: true })
-            ]);
-
-            document.getElementById('project-count').textContent = projectCount || 0;
-            document.getElementById('skill-count').textContent = skillCount || 0;
-            document.getElementById('social-count').textContent = socialCount || 0;
-            document.getElementById('total-messages').textContent = messageCount || 0;
-            document.getElementById('message-count').textContent = messageCount || 0;
-        } catch (error) {
-            console.error('Error updating stats:', error);
-        }
-    }
-
-    // ========================================
-    // MODAL FUNCTIONS
+    // MODALS
     // ========================================
 
     closeModal(modalId) {
@@ -607,7 +538,7 @@ class AdminDashboard {
     }
 
     // ========================================
-    // NOTIFICATION
+    // NOTIFICATIONS
     // ========================================
 
     showNotification(message, type = 'success') {
@@ -616,12 +547,12 @@ class AdminDashboard {
             position: fixed;
             top: 20px;
             right: 20px;
+            padding: 1rem 1.5rem;
             background: ${type === 'success' ? '#10b981' : '#ef4444'};
             color: white;
-            padding: 1rem 1.5rem;
             border-radius: 10px;
-            z-index: 10000;
             font-weight: 600;
+            z-index: 10000;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             animation: slideInRight 0.3s ease;
         `;
@@ -629,7 +560,8 @@ class AdminDashboard {
         document.body.appendChild(notification);
 
         setTimeout(() => {
-            notification.remove();
+            notification.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => notification.remove(), 300);
         }, 4000);
     }
 }
@@ -642,24 +574,18 @@ let dashboard;
 
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.add('active');
-    }
+    if (modal) modal.classList.add('active');
 }
 
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    if (modal) modal.classList.remove('active');
 }
 
 function switchTab(tabName) {
     if (dashboard) {
         const link = document.querySelector(`[data-tab="${tabName}"]`);
-        if (link) {
-            dashboard.switchTab(link);
-        }
+        if (link) dashboard.switchTab(link);
     }
 }
 
