@@ -362,117 +362,183 @@
             </div>
         </div>
     </div>
+<!-- SUPABASE CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>
-        class LoginPage {
-            constructor() {
-                this.form = document.getElementById('login-form');
-                this.emailInput = document.getElementById('email');
-                this.passwordInput = document.getElementById('password');
-                this.rememberCheckbox = document.getElementById('remember');
-                this.submitBtn = document.getElementById('submitBtn');
-                this.messageDiv = document.getElementById('message');
+<script>
+    // ========================================
+    // SUPABASE CONFIG
+    // ========================================
 
-                this.init();
-            }
+    const SUPABASE_URL = 'https://qpevxichqzeuqswvacqa.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_pz9O2PocfjwdFNSlkfnAtw_Hni6wFAh';
 
-            init() {
-                // Check if already logged in
-                this.checkAuth();
-                
-                this.form.addEventListener('submit', (e) => this.handleLogin(e));
-                this.loadSavedCredentials();
-            }
+    const supabaseClient = supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
-            checkAuth() {
-                const token = localStorage.getItem('admin_auth_token') || sessionStorage.getItem('admin_auth_token');
-                if (token) {
-                    // Already logged in - redirect to dashboard
-                    console.log('✅ User already logged in - redirecting to dashboard');
+    window.supabaseClient = supabaseClient;
+
+    // LOGIN CLASS
+    class LoginPage {
+
+        constructor() {
+
+            this.form = document.getElementById('login-form');
+            this.emailInput = document.getElementById('email');
+            this.passwordInput = document.getElementById('password');
+            this.rememberCheckbox = document.getElementById('remember');
+            this.submitBtn = document.getElementById('submitBtn');
+            this.messageDiv = document.getElementById('message');
+
+            this.init();
+        }
+
+        async init() {
+
+            await this.checkAuth();
+
+            this.form.addEventListener(
+                'submit',
+                (e) => this.handleLogin(e)
+            );
+        }
+
+        // ========================================
+        // CHECK AUTH
+        // ========================================
+
+        async checkAuth() {
+
+            try {
+
+                const {
+                    data: { session }
+                } = await supabaseClient.auth.getSession();
+
+                if (session) {
+
+                    console.log('✅ Already logged in');
+
                     window.location.href = 'dashboard.html';
                 }
-            }
 
-            async handleLogin(e) {
-                e.preventDefault();
+            } catch (error) {
 
-                const email = this.emailInput.value.trim();
-                const password = this.passwordInput.value;
-
-                // Demo credentials validation
-                if (email === 'admin@example.com' && password === 'admin123') {
-                    this.setLoadingState(true);
-                    
-                    // Create token (base64 encoded)
-                    const token = btoa(email + ':' + password + ':' + new Date().getTime());
-                    
-                    // Save authentication data
-                    if (this.rememberCheckbox.checked) {
-                        localStorage.setItem('admin_auth_token', token);
-                        localStorage.setItem('admin_email', email);
-                        localStorage.setItem('remember_me', 'true');
-                    } else {
-                        sessionStorage.setItem('admin_auth_token', token);
-                        localStorage.setItem('admin_email', email);
-                        localStorage.removeItem('remember_me');
-                    }
-
-                    this.showMessage('✓ Login successful!', 'success');
-                    
-                    // Redirect after short delay
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 800);
-                } else {
-                    this.setLoadingState(false);
-                    this.showMessage('❌ Invalid email or password', 'error');
-                    this.passwordInput.value = '';
-                    this.passwordInput.focus();
-                }
-            }
-
-            showMessage(message, type) {
-                this.messageDiv.textContent = message;
-                this.messageDiv.className = `message ${type} show`;
-                
-                // Auto-hide error messages
-                if (type === 'error') {
-                    setTimeout(() => {
-                        this.messageDiv.classList.remove('show');
-                    }, 4000);
-                }
-            }
-
-            setLoadingState(isLoading) {
-                this.submitBtn.disabled = isLoading;
-                if (isLoading) {
-                    this.submitBtn.classList.add('loading');
-                    this.submitBtn.textContent = '';
-                } else {
-                    this.submitBtn.classList.remove('loading');
-                    this.submitBtn.textContent = 'Sign In';
-                }
-                this.emailInput.disabled = isLoading;
-                this.passwordInput.disabled = isLoading;
-            }
-
-            loadSavedCredentials() {
-                const savedEmail = localStorage.getItem('admin_email');
-                const rememberMe = localStorage.getItem('remember_me') === 'true';
-
-                if (savedEmail && rememberMe) {
-                    this.emailInput.value = savedEmail;
-                    this.rememberCheckbox.checked = true;
-                    this.passwordInput.focus();
-                }
+                console.error(error);
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            new LoginPage();
-            console.log('✅ Login page ready');
-            console.log('Demo credentials: admin@example.com / admin123');
-        });
-    </script>
+        // ========================================
+        // HANDLE LOGIN
+        // ========================================
+
+        async handleLogin(e) {
+
+            e.preventDefault();
+
+            const email = this.emailInput.value.trim();
+            const password = this.passwordInput.value;
+
+            this.setLoadingState(true);
+
+            try {
+
+                const {
+                    data,
+                    error
+                } = await supabaseClient.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (error) throw error;
+
+                console.log('✅ Login success');
+
+                this.showMessage(
+                    '✅ Login successful!',
+                    'success'
+                );
+
+                setTimeout(() => {
+
+                    window.location.href = 'dashboard.html';
+
+                }, 1000);
+
+            } catch (error) {
+
+                console.error(error);
+
+                this.showMessage(
+                    error.message || 'Login failed',
+                    'error'
+                );
+
+            } finally {
+
+                this.setLoadingState(false);
+            }
+        }
+
+        // ========================================
+        // MESSAGE
+        // ========================================
+
+        showMessage(message, type) {
+
+            this.messageDiv.textContent = message;
+
+            this.messageDiv.className =
+                `message ${type} show`;
+
+            if (type === 'error') {
+
+                setTimeout(() => {
+
+                    this.messageDiv.classList.remove('show');
+
+                }, 4000);
+            }
+        }
+
+        // ========================================
+        // LOADING
+        // ========================================
+
+        setLoadingState(isLoading) {
+
+            this.submitBtn.disabled = isLoading;
+
+            if (isLoading) {
+
+                this.submitBtn.classList.add('loading');
+                this.submitBtn.textContent = '';
+
+            } else {
+
+                this.submitBtn.classList.remove('loading');
+                this.submitBtn.textContent = 'Sign In';
+            }
+
+            this.emailInput.disabled = isLoading;
+            this.passwordInput.disabled = isLoading;
+        }
+    }
+
+    // ========================================
+    // INIT
+    // ========================================
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        new LoginPage();
+
+        console.log('✅ Login Page Ready');
+    });
+</script>
+   
 </body>
 </html>
