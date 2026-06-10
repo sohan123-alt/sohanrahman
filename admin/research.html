@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Research - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <style>
+        .admin-body {
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary, #667eea);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark, #5568d3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary, #f8fafc);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger, #ef4444);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger, #ef4444);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-published {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-review {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .status-accepted {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+    <div class="content-wrapper">
+        <header class="page-header">
+            <div>
+                <h1>Manage Research Papers</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem;">Showcase your publications and academic
+                    contributions</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="openResearchModal()">
+                    <i class="fas fa-plus"></i> Add New Paper
+                </button>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Year</th>
+                        <th>Title & Authors</th>
+                        <th>Journal / Conference</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Featured</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="research-list">
+                    <!-- Data will be loaded here -->
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem;">Loading research papers...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="researchModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Research Paper</h2>
+                <button class="btn btn-secondary"
+                    style="padding: 0.5rem; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeResearchModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="researchForm">
+                <input type="hidden" id="paperId">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Title</label>
+                        <input type="text" id="title" placeholder="Enter the full title of the paper" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Authors</label>
+                        <input type="text" id="authors" placeholder="e.g. John Doe, Jane Smith" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Journal / Conference</label>
+                        <input type="text" id="journal" placeholder="e.g. IEEE Transactions on AI" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Year</label>
+                        <input type="number" id="year" placeholder="2026" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <input type="text" id="category" placeholder="e.g. Machine Learning">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status">
+                            <option value="Published">Published</option>
+                            <option value="In Review">In Review</option>
+                            <option value="Accepted">Accepted</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>DOI (Optional)</label>
+                        <input type="text" id="doi" placeholder="e.g. 10.1145/1234567.1234567">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Abstract</label>
+                        <textarea id="abstract" rows="4" placeholder="Enter the paper abstract..."></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Keywords (Comma separated)</label>
+                        <input type="text" id="keywords" placeholder="e.g. AI, NLP, Deep Learning">
+                    </div>
+                    <div class="form-group">
+                        <label>PDF URL (Optional)</label>
+                        <input type="url" id="pdf_url" placeholder="https://example.com/paper.pdf">
+                    </div>
+                    <div class="form-group">
+                        <label>External Link (Optional)</label>
+                        <input type="url" id="external_url" placeholder="https://doi.org/...">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.75rem;">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="featured">
+                            <span>Featured Paper</span>
+                        </label>
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.75rem;">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="visible" checked>
+                            <span>Visible on Portfolio</span>
+                        </label>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeResearchModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/config/supabase-config.js"></script>
+    <script>
+        let allPapers = [];
+        const modal = document.getElementById('researchModal');
+        const form = document.getElementById('researchForm');
+
+        document.addEventListener('DOMContentLoaded', fetchPapers);
+
+        async function fetchPapers() {
+            const { data, error } = await supabaseClient
+                .from('research_papers')
+                .select('*')
+                .order('year', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching data:', error.message);
+                return;
+            }
+
+            allPapers = data;
+            renderList();
+        }
+
+        function renderList() {
+            const list = document.getElementById('research-list');
+            if (allPapers.length === 0) {
+                list.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem;">No research papers found.</td></tr>';
+                return;
+            }
+            list.innerHTML = allPapers.map(item => `
+                <tr>
+                    <td><span style="font-weight: 700; color: var(--primary);">${item.year}</span></td>
+                    <td>
+                        <div style="font-weight: 600; max-width: 400px;">${item.title}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${item.authors}</div>
+                    </td>
+                    <td>${item.journal}</td>
+                    <td><span class="status-badge" style="background: rgba(102, 126, 234, 0.1); color: var(--primary);">${item.category || '-'}</span></td>
+                    <td><span class="status-badge status-${item.status.toLowerCase().replace(' ', '')}">${item.status}</span></td>
+                    <td>${item.featured ? '<span style="color: var(--warning);">⭐ Yes</span>' : '<span style="color: var(--text-tertiary);">No</span>'}</td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="editPaper('${item.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deletePaper('${item.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openResearchModal(id = null) {
+            modal.classList.add('active');
+            if (!id) {
+                document.getElementById('modalTitle').innerText = 'Add Research Paper';
+                form.reset();
+                document.getElementById('paperId').value = '';
+                document.getElementById('year').value = new Date().getFullYear();
+            }
+        }
+
+        function closeResearchModal() {
+            modal.classList.remove('active');
+        }
+
+        function editPaper(id) {
+            const item = allPapers.find(p => p.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerText = 'Edit Research Paper';
+            document.getElementById('paperId').value = item.id;
+            document.getElementById('title').value = item.title;
+            document.getElementById('authors').value = item.authors;
+            document.getElementById('journal').value = item.journal;
+            document.getElementById('year').value = item.year;
+            document.getElementById('category').value = item.category || '';
+            document.getElementById('status').value = item.status;
+            document.getElementById('doi').value = item.doi || '';
+            document.getElementById('abstract').value = item.abstract || '';
+            document.getElementById('keywords').value = item.keywords || '';
+            document.getElementById('pdf_url').value = item.pdf_url || '';
+            document.getElementById('external_url').value = item.external_url || '';
+            document.getElementById('featured').checked = item.featured;
+            document.getElementById('visible').checked = item.visible;
+
+            openResearchModal(id);
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const id = document.getElementById('paperId').value;
+            const payload = {
+                title: document.getElementById('title').value,
+                authors: document.getElementById('authors').value,
+                journal: document.getElementById('journal').value,
+                year: parseInt(document.getElementById('year').value),
+                category: document.getElementById('category').value,
+                status: document.getElementById('status').value,
+                doi: document.getElementById('doi').value,
+                abstract: document.getElementById('abstract').value,
+                keywords: document.getElementById('keywords').value,
+                pdf_url: document.getElementById('pdf_url').value,
+                external_url: document.getElementById('external_url').value,
+                featured: document.getElementById('featured').checked,
+                visible: document.getElementById('visible').checked
+            };
+
+            let result;
+            if (id) {
+                result = await supabaseClient.from('research_papers').update(payload).eq('id', id);
+            } else {
+                result = await supabaseClient.from('research_papers').insert([payload]);
+            }
+
+            if (result.error) {
+                alert('Error saving: ' + result.error.message);
+            } else {
+                closeResearchModal();
+                fetchPapers();
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+        };
+
+        async function deletePaper(id) {
+            if (!confirm('Are you sure you want to delete this research paper?')) return;
+            const { error } = await supabaseClient.from('research_papers').delete().eq('id', id);
+            if (error) alert('Error deleting: ' + error.message);
+            else fetchPapers();
+        }
+    </script>
+</body>
+
+</html>
