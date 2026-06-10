@@ -9,19 +9,21 @@ class AdminDashboard {
 
     async init() {
         console.log('Initializing Admin Dashboard...');
-        
+
         await this.checkAuth();
         this.setupEventListeners();
         this.setupNavigation();
         this.setupSidebarToggle();
-        
+
         // Load all data
         await Promise.all([
             this.loadProfile(),
             this.loadProjects(),
             this.loadSkills(),
             this.loadSocials(),
-            this.loadMessages()
+            this.loadMessages(),
+            this.loadEducationCount(),
+            this.loadResearchCount()
         ]);
 
         console.log('✅ Admin Dashboard Ready');
@@ -105,7 +107,10 @@ class AdminDashboard {
             'projects': 'Projects',
             'skills': 'Skills',
             'social': 'Social Links',
-            'messages': 'Messages'
+            'messages': 'Messages',
+            'education': 'Education',
+            'Research': 'Research Papers'
+
         };
         document.getElementById('page-title').textContent = titles[tabId] || 'Dashboard';
     }
@@ -534,6 +539,32 @@ class AdminDashboard {
             window.location.href = 'login.html';
         } catch (error) {
             console.error('Logout error:', error);
+        }
+    }
+
+    async loadEducationCount() {
+        try {
+            const { count, error } = await window.supabaseClient
+                .from('education')
+                .select('*', { count: 'exact', head: true });
+            if (error) throw error;
+            const el = document.getElementById('total-education');
+            if (el) el.textContent = count || 0;
+        } catch (error) {
+            console.error('Error loading education count:', error);
+        }
+    }
+
+    async loadResearchCount() {
+        try {
+            const { count, error } = await window.supabaseClient
+                .from('research_papers')
+                .select('*', { count: 'exact', head: true });
+            if (error) throw error;
+            const el = document.getElementById('total-research');
+            if (el) el.textContent = count || 0;
+        } catch (error) {
+            console.error('Error loading research count:', error);
         }
     }
 
