@@ -7,18 +7,20 @@
     <meta name="description" content="Creative Professional Portfolio - Web Developer & Designer">
     <meta name="theme-color" content="#6366f1">
     <title>Portfolio | Creative Professional</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/education.css">
+    <link rel="stylesheet" href="assets/css/research.css">
 </head>
 
 <body class="light-mode">
@@ -41,6 +43,8 @@
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#skills" class="nav-link">Skills</a></li>
                 <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#education" class="nav-link">Education</a></li>
+                <li><a href="#research" class="nav-link">Research</a></li>
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
             <div class="nav-btns">
@@ -70,7 +74,8 @@
                         <span id="hero-role">Creative Developer</span>
                     </h2>
                     <p class="hero-description fade-in" id="hero-bio">
-                        Building digital experiences that matter. I specialize in creating high-quality web applications and interactive designs.
+                        Building digital experiences that matter. I specialize in creating high-quality web applications
+                        and interactive designs.
                     </p>
                     <div class="hero-btns fade-in">
                         <a href="#projects" class="btn primary-btn" role="button">View My Work</a>
@@ -137,8 +142,47 @@
             </div>
         </section>
 
+        <!-- Education Section -->
+        <section id="education" class="section education-section" aria-labelledby="education-title">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="education-title">Education</h2>
+                    <div class="underline"></div>
+                </div>
+                <div id="education-timeline" class="timeline">
+                    <!-- Education items will be injected here -->
+                    <div class="text-center">Loading education history...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Section -->
+        <section id="research" class="section research-section bg-light" aria-labelledby="research-title">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="research-title">Research Papers</h2>
+                    <div class="underline"></div>
+                </div>
+
+                <div class="research-controls">
+                    <div class="search-box">
+                        <input type="text" id="research-search" placeholder="Search papers...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div id="category-filters" class="research-filters">
+                        <!-- Filters will be injected here -->
+                    </div>
+                </div>
+
+                <div id="research-grid" class="research-grid">
+                    <!-- Research papers will be injected here -->
+                    <div class="text-center col-span-full">Loading research papers...</div>
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Section -->
-        <section id="contact" class="section contact-section bg-light" aria-labelledby="contact-title">
+        <section id="contact" class="section contact-section" aria-labelledby="contact-title">
             <div class="container">
                 <div class="section-header">
                     <h2 id="contact-title">Get In Touch</h2>
@@ -176,22 +220,26 @@
                         <form id="contact-form" class="contact-form" novalidate>
                             <div class="form-group">
                                 <label for="name" class="form-label">Full Name</label>
-                                <input type="text" id="name" name="name" class="form-input" placeholder="John Doe" required>
+                                <input type="text" id="name" name="name" class="form-input" placeholder="John Doe"
+                                    required>
                                 <span class="form-error"></span>
                             </div>
                             <div class="form-group">
                                 <label for="email" class="form-label">Email Address</label>
-                                <input type="email" id="email" name="email" class="form-input" placeholder="john@example.com" required>
+                                <input type="email" id="email" name="email" class="form-input"
+                                    placeholder="john@example.com" required>
                                 <span class="form-error"></span>
                             </div>
                             <div class="form-group">
                                 <label for="subject" class="form-label">Subject</label>
-                                <input type="text" id="subject" name="subject" class="form-input" placeholder="Project Discussion" required>
+                                <input type="text" id="subject" name="subject" class="form-input"
+                                    placeholder="Project Discussion" required>
                                 <span class="form-error"></span>
                             </div>
                             <div class="form-group">
                                 <label for="message" class="form-label">Message</label>
-                                <textarea id="message" name="message" class="form-input" rows="5" placeholder="Your message..." required></textarea>
+                                <textarea id="message" name="message" class="form-input" rows="5"
+                                    placeholder="Your message..." required></textarea>
                                 <span class="form-error"></span>
                             </div>
                             <button type="submit" class="btn primary-btn w-100">
@@ -227,7 +275,9 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="assets/js/supabase-config.js"></script>
+    <script src="assets/js/config/supabase-config.js"></script>
+    <script src="assets/js/education.js"></script>
+    <script src="assets/js/research.js"></script>
     <script src="assets/js/main.js"></script>
 </body>
 
