@@ -8,7 +8,8 @@
     <title>Admin Dashboard | Portfolio</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
 
@@ -80,6 +81,18 @@
                     </div>
                     <span class="nav-label">Social</span>
                 </a>
+                <a href="education.html" class="nav-item">
+                    <div class="nav-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <span>Education</span>
+                </a>
+                <a href="research.html" class="nav-item">
+                    <div class="nav-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <span>Research</span>
+                </a>
                 <a href="#" class="nav-item" data-tab="messages">
                     <div class="nav-icon">
                         <i class="fas fa-envelope"></i>
@@ -141,6 +154,26 @@
                                 <p>Messages</p>
                             </div>
                         </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-education">0</h3>
+                                <p>Education</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-research">0</h3>
+                                <p>Research</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Quick Actions -->
@@ -163,6 +196,14 @@
                                 <i class="fas fa-plus"></i>
                                 <span>Add Social Link</span>
                             </button>
+                            <a href="education.html" class="action-btn" style="text-decoration: none;">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>Manage Education</span>
+                            </a>
+                            <a href="research.html" class="action-btn" style="text-decoration: none;">
+                                <i class="fas fa-book"></i>
+                                <span>Manage Research</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -194,7 +235,8 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="admin-email-field">Email</label>
-                                        <input type="email" id="admin-email-field" placeholder="your@email.com" required>
+                                        <input type="email" id="admin-email-field" placeholder="your@email.com"
+                                            required>
                                     </div>
                                     <div class="form-group">
                                         <label for="admin-phone">Phone</label>
@@ -209,7 +251,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="admin-image-url">Image URL</label>
-                                        <input type="url" id="admin-image-url" placeholder="https://example.com/image.jpg">
+                                        <input type="url" id="admin-image-url"
+                                            placeholder="https://example.com/image.jpg">
                                     </div>
                                 </div>
                             </div>
@@ -218,11 +261,13 @@
                                 <h3>Biography</h3>
                                 <div class="form-group">
                                     <label for="admin-bio">Short Bio</label>
-                                    <textarea id="admin-bio" placeholder="Brief description about yourself..." rows="3"></textarea>
+                                    <textarea id="admin-bio" placeholder="Brief description about yourself..."
+                                        rows="3"></textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="admin-about">Detailed About</label>
-                                    <textarea id="admin-about" placeholder="Tell more about yourself..." rows="5"></textarea>
+                                    <textarea id="admin-about" placeholder="Tell more about yourself..."
+                                        rows="5"></textarea>
                                 </div>
                             </div>
 
@@ -415,7 +460,8 @@
                 </div>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">Save Project</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('project-modal')">Cancel</button>
+                    <button type="button" class="btn btn-secondary"
+                        onclick="closeModal('project-modal')">Cancel</button>
                 </div>
             </form>
         </div>
@@ -480,7 +526,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/supabase-config.js"></script>
+    <script src="../assets/js/config/supabase-config.js"></script>
     <script src="../assets/js/admin.js"></script>
 </body>
 
