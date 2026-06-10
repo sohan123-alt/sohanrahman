@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Education - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/admin.css">
+    <style>
+        .admin-body {
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary, #667eea);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark, #5568d3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary, #f8fafc);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger, #ef4444);
+        }
+
+        .btn-danger:hover {
+            background: var(--danger, #ef4444);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .status-ongoing {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-xl);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .checkbox-group input {
+            width: auto;
+        }
+    </style>
+</head>
+
+<body class="admin-body">
+    <div class="content-wrapper">
+        <header class="page-header">
+            <div>
+                <h1>Manage Education</h1>
+                <p style="color: var(--text-secondary); margin-top: 0.25rem;">Add, edit or remove your academic
+                    qualifications</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="openEduModal()">
+                    <i class="fas fa-plus"></i> Add New Education
+                </button>
+                <a href="dashboard.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Order</th>
+                        <th>Degree & Department</th>
+                        <th>Institution</th>
+                        <th>Session</th>
+                        <th>Status</th>
+                        <th>Visible</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="education-list">
+                    <!-- Data will be loaded here -->
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem;">Loading education data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="educationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Education</h2>
+                <button class="btn btn-secondary"
+                    style="padding: 0.5rem; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeEduModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="educationForm">
+                <input type="hidden" id="eduId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Degree</label>
+                        <input type="text" id="degree" placeholder="e.g. Bachelor of Science" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" id="department" placeholder="e.g. Computer Science" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Institution</label>
+                        <input type="text" id="institution" placeholder="e.g. University of Dhaka" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Session</label>
+                        <input type="text" id="session" placeholder="e.g. 2018 - 2022" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" id="duration" placeholder="e.g. 4 Years" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Result (Optional)</label>
+                        <input type="text" id="result" placeholder="e.g. CGPA 3.80/4.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status">
+                            <option value="Completed">Completed</option>
+                            <option value="Ongoing">Ongoing</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Description</label>
+                        <textarea id="description" rows="3"
+                            placeholder="Briefly describe your studies, achievements, or key courses..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Display Order</label>
+                        <input type="number" id="display_order" value="0">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.75rem;">
+                        <label class="checkbox-group">
+                            <input type="checkbox" id="visible" checked>
+                            <span>Visible on Portfolio</span>
+                        </label>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEduModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/config/supabase-config.js"></script>
+    <script>
+        let allEducation = [];
+        const modal = document.getElementById('educationModal');
+        const form = document.getElementById('educationForm');
+
+        document.addEventListener('DOMContentLoaded', fetchEducation);
+
+        async function fetchEducation() {
+            const { data, error } = await supabaseClient
+                .from('education')
+                .select('*')
+                .order('display_order', { ascending: true });
+
+            if (error) {
+                console.error('Error fetching data:', error.message);
+                return;
+            }
+
+            allEducation = data;
+            renderList();
+        }
+
+        function renderList() {
+            const list = document.getElementById('education-list');
+            if (allEducation.length === 0) {
+                list.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem;">No education records found.</td></tr>';
+                return;
+            }
+            list.innerHTML = allEducation.map(item => `
+                <tr>
+                    <td><span style="font-weight: 700; color: var(--primary);">${item.display_order}</span></td>
+                    <td>
+                        <div style="font-weight: 600;">${item.degree}</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">${item.department}</div>
+                    </td>
+                    <td>${item.institution}</td>
+                    <td>${item.session}</td>
+                    <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
+                    <td>${item.visible ? '<span style="color: var(--success);">✅ Yes</span>' : '<span style="color: var(--text-tertiary);">❌ No</span>'}</td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                            <button class="btn btn-secondary" style="padding: 0.5rem;" onclick="editEducation('${item.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" style="padding: 0.5rem;" onclick="deleteEducation('${item.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openEduModal(id = null) {
+            modal.classList.add('active');
+            if (!id) {
+                document.getElementById('modalTitle').innerText = 'Add Education';
+                form.reset();
+                document.getElementById('eduId').value = '';
+                document.getElementById('display_order').value = allEducation.length;
+            }
+        }
+
+        function closeEduModal() {
+            modal.classList.remove('active');
+        }
+
+        function editEducation(id) {
+            const item = allEducation.find(e => e.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').innerText = 'Edit Education';
+            document.getElementById('eduId').value = item.id;
+            document.getElementById('degree').value = item.degree;
+            document.getElementById('department').value = item.department;
+            document.getElementById('institution').value = item.institution;
+            document.getElementById('session').value = item.session;
+            document.getElementById('duration').value = item.duration;
+            document.getElementById('result').value = item.result || '';
+            document.getElementById('status').value = item.status;
+            document.getElementById('description').value = item.description || '';
+            document.getElementById('display_order').value = item.display_order;
+            document.getElementById('visible').checked = item.visible;
+
+            openEduModal(id);
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            const id = document.getElementById('eduId').value;
+            const payload = {
+                degree: document.getElementById('degree').value,
+                department: document.getElementById('department').value,
+                institution: document.getElementById('institution').value,
+                session: document.getElementById('session').value,
+                duration: document.getElementById('duration').value,
+                result: document.getElementById('result').value,
+                status: document.getElementById('status').value,
+                description: document.getElementById('description').value,
+                display_order: parseInt(document.getElementById('display_order').value),
+                visible: document.getElementById('visible').checked
+            };
+
+            let result;
+            if (id) {
+                result = await supabaseClient.from('education').update(payload).eq('id', id);
+            } else {
+                result = await supabaseClient.from('education').insert([payload]);
+            }
+
+            if (result.error) {
+                alert('Error saving: ' + result.error.message);
+            } else {
+                closeEduModal();
+                fetchEducation();
+            }
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+        };
+
+        async function deleteEducation(id) {
+            if (!confirm('Are you sure you want to delete this education record?')) return;
+            const { error } = await supabaseClient.from('education').delete().eq('id', id);
+            if (error) alert('Error deleting: ' + error.message);
+            else fetchEducation();
+        }
+    </script>
+</body>
+
+</html>
